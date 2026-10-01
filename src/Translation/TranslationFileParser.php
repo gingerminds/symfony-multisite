@@ -27,13 +27,33 @@ final class TranslationFileParser
             return [];
         }
 
-        $header = array_map(static fn (mixed $value): ?string => \is_string($value) ? mb_strtolower(trim($value)) : null, array_shift($rows));
+        $header = $this->header(array_shift($rows));
         $keyColumn = array_search('key', $header, true);
 
         if (false === $keyColumn) {
             throw TranslationSourceException::missingKeyColumn();
         }
 
+        return $this->translations($rows, $keyColumn, $this->localeColumns($header, $keyColumn));
+    }
+
+    /**
+     * @param list<mixed> $row
+     *
+     * @return array<int, string|null> lowercase trimmed labels, null for a non text cell
+     */
+    private function header(array $row): array
+    {
+        return array_map(static fn (mixed $value): ?string => \is_string($value) ? mb_strtolower(trim($value)) : null, $row);
+    }
+
+    /**
+     * @param array<int, string|null> $header
+     *
+     * @return array<string, int> locale => column
+     */
+    private function localeColumns(array $header, int $keyColumn): array
+    {
         $locales = [];
 
         foreach ($header as $column => $locale) {
@@ -42,6 +62,17 @@ final class TranslationFileParser
             }
         }
 
+        return $locales;
+    }
+
+    /**
+     * @param list<list<mixed>>  $rows
+     * @param array<string, int> $locales locale => column
+     *
+     * @return array<string, array<string, string>> locale => [key => value]
+     */
+    private function translations(array $rows, int $keyColumn, array $locales): array
+    {
         $translations = array_fill_keys(array_keys($locales), []);
 
         foreach ($rows as $row) {
@@ -52,11 +83,15 @@ final class TranslationFileParser
             }
 
             foreach ($locales as $locale => $column) {
-                $value = $row[$column] ?? null;
-                $translations[$locale][trim($key)] = \is_scalar($value) ? (string) $value : '';
+                $translations[$locale][trim($key)] = $this->cell($row[$column] ?? null);
             }
         }
 
         return $translations;
+    }
+
+    private function cell(mixed $value): string
+    {
+        return \is_scalar($value) ? (string) $value : '';
     }
 }

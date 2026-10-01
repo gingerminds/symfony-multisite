@@ -53,7 +53,7 @@ class TranslationService
 
         return $this->cache->get($this->cacheKey($site), function (ItemInterface $item) use ($site): array {
             $translations = $this->fetch($site);
-            $item->expiresAfter(null === $translations ? self::ERROR_TTL : (0 === $this->cacheTtl ? null : $this->cacheTtl));
+            $item->expiresAfter($this->cacheLifetime(null !== $translations));
 
             return $translations ?? [];
         });
@@ -70,6 +70,19 @@ class TranslationService
     public function resetCacheForSite(SiteInterface $site): void
     {
         $this->cache->delete($this->cacheKey($site));
+    }
+
+    /**
+     * Seconds the fetched translations stay cached: `cache_ttl` (null: until the next
+     * refresh when 0), one minute only after an error.
+     */
+    private function cacheLifetime(bool $fetched): ?int
+    {
+        if (!$fetched) {
+            return self::ERROR_TTL;
+        }
+
+        return 0 === $this->cacheTtl ? null : $this->cacheTtl;
     }
 
     /**
