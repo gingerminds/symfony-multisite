@@ -4,7 +4,7 @@ Multisite and multi-language bundle for Gingerminds Symfony admin panels, built 
 [`gingerminds/symfony-core`](https://github.com/gingerminds/symfony-core) — the Symfony 8
 counterpart of `gingerminds/laravel-multisite`.
 
-Requires PHP 8.4, Symfony 8.1, Doctrine ORM 3, API Platform 4.4 and `gingerminds/symfony-core` ^1.4.
+Requires PHP 8.4, Symfony 8.1, Doctrine ORM 3, API Platform 4.4 and `gingerminds/symfony-core` ^1.5.
 
 > Work in progress: the port of `gingerminds/laravel-multisite` is done step by step,
 > see [CHANGELOG](CHANGELOG.md).

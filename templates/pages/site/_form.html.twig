@@ -1,0 +1,50 @@
+{% trans_default_domain 'GingermindsMultisite' %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header py-3">
+                <h5 class="card-title mb-0"><i class="bi bi-globe2 me-1 text-primary"></i> {{ 'site.name_s'|trans }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {{ form_row(form.code) }}
+                    {{ form_row(form.url) }}
+                    {{ form_row(form.front_urls) }}
+                </div>
+            </div>
+        </div>
+
+        {% if form.google_drive_file_id is defined %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex align-items-center justify-content-between py-3">
+                    <h5 class="card-title mb-0"><i class="bi bi-translate me-1 text-primary"></i> {{ 'site.form.translations'|trans }}</h5>
+                    {% if entity.hasGoogleCredentials %}
+                        <span class="badge bg-success-subtle text-success-emphasis">{{ 'site.form.credentials_configured'|trans }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ 'site.form.credentials_missing'|trans }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {{ form_row(form.google_drive_file_id) }}
+                        {{ form_row(form.google_service_account_credentials) }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header py-3">
+                <h5 class="card-title mb-0"><i class="bi bi-translate me-1 text-primary"></i> {{ 'language.name_p'|trans }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {{ form_row(form.languages) }}
+                    {{ form_row(form.default_language) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -15,7 +15,7 @@
         "api-platform/symfony": "^4.4",
         "doctrine/doctrine-bundle": "^2.18 || ^3.0",
         "doctrine/orm": "^3.5",
-        "gingerminds/symfony-core": "^1.4",
+        "gingerminds/symfony-core": "^1.5",
         "google/apiclient": "^2.18",
         "phpoffice/phpspreadsheet": "^3.5 || ^4.0 || ^5.0",
         "symfony/cache": "^8.1",

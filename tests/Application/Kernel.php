@@ -34,6 +34,10 @@ final class Kernel extends BaseKernel
     {
         $container->import(__DIR__ . '/config/packages.yaml');
         $container->import(__DIR__ . '/config/services.yaml');
+
+        if ('override' === $this->environment) {
+            $container->import(__DIR__ . '/config/override.yaml');
+        }
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void

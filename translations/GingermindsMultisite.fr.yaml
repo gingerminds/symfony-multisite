@@ -1,0 +1,44 @@
+site_switcher:
+    label: Site courant
+
+site:
+    name_s: Site
+    name_p: Sites
+    manage: Gérer les sites
+    title_new: Ajouter un site
+    title_edit: Modifier un site
+    field:
+        code: Code
+        url: Domaine
+        front_urls: URLs front
+        languages: Langues
+        default_language: Langue par défaut
+        google_drive_file_id: ID du fichier Google Drive
+        google_service_account_credentials: Identifiants du compte de service Google (JSON)
+    help:
+        front_urls: Une URL par ligne. Domaines des sites front reliés à ce back office.
+        google_service_account_credentials: Laisser vide pour conserver les identifiants déjà enregistrés. Collez le contenu du fichier JSON du compte de service uniquement pour les définir ou les remplacer.
+    placeholder:
+        default_language: Aucune
+    form:
+        translations: Traductions front
+        credentials_configured: Identifiants enregistrés
+        credentials_missing: Aucun identifiant enregistré
+    error:
+        default_language_not_selected: La langue par défaut doit faire partie des langues du site.
+    message:
+        no_items: Aucun site
+
+language:
+    name_s: Langue
+    name_p: Langues
+    manage: Gérer les langues
+    title_new: Ajouter une langue
+    title_edit: Modifier une langue
+    field:
+        iso: Code ISO
+        label: Libellé
+    help:
+        iso: Code de langue du header Accept-Language (fr, en, de...).
+    message:
+        no_items: Aucune langue
