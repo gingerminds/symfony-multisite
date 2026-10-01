@@ -3,6 +3,9 @@ services:
         autowire: true
         autoconfigure: true
 
+    Gingerminds\MultisiteBundle\Tests\Application\Form\:
+        resource: '../Form/'
+
     Gingerminds\MultisiteBundle\Tests\Application\Controller\:
         resource: '../Controller/'
         tags: ['controller.service_arguments']

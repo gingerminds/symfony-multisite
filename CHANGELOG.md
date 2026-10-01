@@ -36,3 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   (`<Entity>Translation`, `<owner>_id` + `language_id`, mapped automatically): current
   translation with fallback, `getTranslation()`; `HasTranslatedTitleAndSlugTrait`.
 
+- `TranslationsType` (`translations` of a TranslatableInterface entity): one `entry_type` form
+  per language of the current site (every language without site), keyed by language id,
+  rendered as tabs (global form theme `@GingermindsMultisite/form/translations_theme.html.twig`).
+  The default language is required; an optional language left empty is neither created nor
+  validated, and removed when it existed.
+- `#[UniqueTranslationSlug]` on a translation entity: slug unique per language and, for a site
+  contexted owner, per site (shared rows conflict with every site).

@@ -7,9 +7,12 @@ namespace Gingerminds\MultisiteBundle\Tests\Application\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Gingerminds\MultisiteBundle\Model\TranslationInterface;
 use Gingerminds\MultisiteBundle\Model\TranslationTrait;
+use Gingerminds\MultisiteBundle\Validator\UniqueTranslationSlug;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'article_translations')]
+#[UniqueTranslationSlug]
 class ArticleTranslation implements TranslationInterface
 {
     use TranslationTrait;
@@ -20,9 +23,11 @@ class ArticleTranslation implements TranslationInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private string $title = '';
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private string $slug = '';
 
     public function getId(): ?int

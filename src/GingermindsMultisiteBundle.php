@@ -132,6 +132,12 @@ final class GingermindsMultisiteBundle extends AbstractBundle
             ],
         ]);
 
+        if ($builder->hasExtension('twig')) {
+            $builder->prependExtensionConfig('twig', [
+                'form_themes' => ['@GingermindsMultisite/form/translations_theme.html.twig'],
+            ]);
+        }
+
         // Prepended: the project configuration still overrides any key.
         $builder->prependExtensionConfig('gingerminds_core', [
             'resources' => $resources,

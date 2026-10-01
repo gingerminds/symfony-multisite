@@ -1,0 +1,3 @@
+gingerminds_multisite:
+    translation:
+        slug_not_unique: This slug is already used.
