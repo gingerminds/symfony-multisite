@@ -10,7 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * The site of a request, in this order:
- *  1. the admin site switcher choice (`admin_site_id` session key, only when a session exists);
+ *  1. the admin site switcher choice (`admin_site_id` session key, only when a session exists
+ *     and the request is not stateless);
  *  2. the `X-Site-Id` header (site id, or code);
  *  3. the request host, contained in a site URL;
  *  4. the first site.
@@ -35,8 +36,9 @@ class SiteContextResolver
 
     protected function fromSession(Request $request): ?SiteInterface
     {
-        // hasPreviousSession(): never starts a session (stateless API).
-        if (!$request->hasPreviousSession()) {
+        // Never on a stateless request (API, even called with the admin session cookie
+        // from Swagger UI), never starting a session.
+        if ($request->attributes->getBoolean('_stateless') || !$request->hasPreviousSession()) {
             return null;
         }
 

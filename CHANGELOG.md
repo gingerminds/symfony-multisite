@@ -43,3 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   validated, and removed when it existed.
 - `#[UniqueTranslationSlug]` on a translation entity: slug unique per language and, for a site
   contexted owner, per site (shared rows conflict with every site).
+- `GET /api/sites`, public: `id`, `code`, `url`, `languages`, `default_language` (null when
+  none), `front_urls`; paginated, sortable, cached per site and language.
+- `X-Site-Id` and `Accept-Language` headers documented on the operations of the site
+  contexted, language contexted and translatable API resources.
