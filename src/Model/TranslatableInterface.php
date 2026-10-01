@@ -12,7 +12,7 @@ use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
  * row per language. TranslatableMetadataListener maps the `translations`
  * relation, TranslatableListener gives each entity the current languages.
  */
-interface TranslatableInterface
+interface TranslatableInterface extends LanguageScopedInterface
 {
     /**
      * @return class-string<TranslationInterface>

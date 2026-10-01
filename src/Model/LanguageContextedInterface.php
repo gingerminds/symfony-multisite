@@ -13,7 +13,7 @@ use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
  * attached to the current language. Its `languages` relation must be a
  * many-to-many owning side (LanguageContextedTrait maps one).
  */
-interface LanguageContextedInterface
+interface LanguageContextedInterface extends LanguageScopedInterface
 {
     public const string LANGUAGES_FIELD = 'languages';
 

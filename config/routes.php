@@ -19,4 +19,8 @@ return static function (RoutingConfigurator $routes): void {
     $routes->add('gingerminds_multisite_site_switch', '/%gingerminds_core.admin_prefix%/site-switch')
         ->controller('gingerminds_multisite.controller.admin.site_switch')
         ->methods(['POST']);
+
+    $routes->add('gingerminds_multisite_translations_refresh', '/%gingerminds_core.admin_prefix%/translations/refresh')
+        ->controller('gingerminds_multisite.controller.admin.translation_refresh')
+        ->methods(['POST']);
 };

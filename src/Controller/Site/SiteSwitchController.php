@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gingerminds\MultisiteBundle\Controller\Site;
 
 use Gingerminds\MultisiteBundle\Context\SiteContextResolver;
+use Gingerminds\MultisiteBundle\Http\RefererUrl;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,18 +35,6 @@ final readonly class SiteSwitchController
             $request->getSession()->set(self::SESSION_KEY, $site->getId());
         }
 
-        return new RedirectResponse($this->backUrl($request));
-    }
-
-    private function backUrl(Request $request): string
-    {
-        $referer = (string) $request->headers->get('referer');
-        $parts = parse_url($referer);
-
-        if (\is_array($parts) && ($parts['host'] ?? null) === $request->getHost() && isset($parts['path'])) {
-            return $parts['path'] . (isset($parts['query']) ? '?' . $parts['query'] : '');
-        }
-
-        return $this->urlGenerator->generate('gingerminds_core_dashboard');
+        return new RedirectResponse(RefererUrl::sameHost($request, $this->urlGenerator->generate('gingerminds_core_dashboard')));
     }
 }

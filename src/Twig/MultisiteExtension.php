@@ -9,6 +9,7 @@ use Gingerminds\MultisiteBundle\Context\SiteContext;
 use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
+use Gingerminds\MultisiteBundle\Translation\TranslationService;
 use Symfony\Contracts\Service\ResetInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -22,6 +23,7 @@ final class MultisiteExtension extends AbstractExtension implements ResetInterfa
         private readonly SiteRepository $siteRepository,
         private readonly SiteContext $siteContext,
         private readonly LanguageContext $languageContext,
+        private readonly TranslationService $translations,
     ) {
     }
 
@@ -32,6 +34,7 @@ final class MultisiteExtension extends AbstractExtension implements ResetInterfa
             new TwigFunction('gm_multisite_admin_site', $this->siteContext->site(...)),
             new TwigFunction('gm_current_site', $this->siteContext->site(...)),
             new TwigFunction('gm_current_language', $this->currentLanguage(...)),
+            new TwigFunction('gm_multisite_translations_enabled', $this->translations->isEnabledForSite(...)),
         ];
     }
 

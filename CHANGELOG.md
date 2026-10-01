@@ -45,5 +45,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   contexted owner, per site (shared rows conflict with every site).
 - `GET /api/sites`, public: `id`, `code`, `url`, `languages`, `default_language` (null when
   none), `front_urls`; paginated, sortable, cached per site and language.
-- `X-Site-Id` and `Accept-Language` headers documented on the operations of the site
-  contexted, language contexted and translatable API resources.
+- `X-Site-Id` and `Accept-Language` headers documented on the operations of the API resources
+  implementing `SiteScopedInterface` / `LanguageScopedInterface` (extended by the site contexted,
+  language contexted and translatable interfaces; implemented by `/api/translations`).
+- Front translations from a per-site Google Drive xlsx (`translation.enabled`):
+  `GET /api/translations` (public; current site or `?site=` id/code; Accept-Language locale
+  only when sent), `TranslationService` cached `translation.cache_ttl` seconds (0: until the
+  next refresh; a Google error is cached one minute), errors logged to the
+  `translation.log_channel` Monolog channel (`var/log/google.log` file handler prepended).
+  `TranslationSourceInterface` (`gingerminds_multisite.translation.source`) to read the file
+  from elsewhere.
+- Admin "Refresh translations" button on the site form (`manage translations` permission,
+  synced by `gingerminds:permissions:sync`): `RefreshSiteTranslations` Messenger message,
+  handled right away without Messenger.

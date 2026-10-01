@@ -13,7 +13,7 @@ use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
  * site and the shared rows, and a new entity without site gets the current one
  * (SiteContextedTrait maps the relation).
  */
-interface SiteContextedInterface
+interface SiteContextedInterface extends SiteScopedInterface
 {
     public function getSite(): ?SiteInterface;
 

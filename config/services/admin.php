@@ -20,6 +20,7 @@ return static function (ContainerConfigurator $container): void {
             service(SiteRepository::class),
             service('gingerminds_multisite.context.site'),
             service('gingerminds_multisite.context.language'),
+            service('gingerminds_multisite.translation.service'),
         ])
         ->tag('twig.extension')
         ->tag('kernel.reset', ['method' => 'reset']);

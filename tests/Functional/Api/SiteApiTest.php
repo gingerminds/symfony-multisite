@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Gingerminds\MultisiteBundle\Tests\Functional\Api;
 
 use Gingerminds\CoreBundle\ApiPlatform\Metadata\HeaderParameterRegistry;
+use Gingerminds\MultisiteBundle\ApiResource\Translation;
+use Gingerminds\MultisiteBundle\Entity\Site\Site;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\Article;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\Media;
 use Gingerminds\MultisiteBundle\Tests\Functional\ApiTestCase;
@@ -103,5 +105,18 @@ final class SiteApiTest extends ApiTestCase
 
         self::assertSame(['X-Site-Id', 'Accept-Language'], $keys(Article::class));
         self::assertSame(['Accept-Language'], $keys(Media::class));
+        self::assertSame(['X-Site-Id', 'Accept-Language'], $keys(Translation::class));
+        self::assertSame([], $keys(Site::class), 'The sites list itself does not depend on the current site.');
+    }
+
+    public function testTheOpenApiDocumentationListsTheContextHeaders(): void
+    {
+        $this->client->request('GET', '/api/docs', server: ['HTTP_ACCEPT' => 'application/vnd.openapi+json']);
+        self::assertResponseIsSuccessful();
+        $doc = json_decode((string) $this->client->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+
+        $headers = array_column(array_filter($doc['paths']['/api/translations']['get']['parameters'] ?? [], static fn (array $parameter): bool => 'header' === $parameter['in']), 'name');
+
+        self::assertSame(['X-Site-Id', 'Accept-Language'], $headers);
     }
 }

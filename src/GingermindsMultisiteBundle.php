@@ -7,6 +7,7 @@ namespace Gingerminds\MultisiteBundle;
 use Gingerminds\CoreBundle\DependencyInjection\Compiler\OverriddenEntityPass;
 use Gingerminds\MultisiteBundle\Controller\Language\LanguageController;
 use Gingerminds\MultisiteBundle\Controller\Site\SiteController;
+use Gingerminds\MultisiteBundle\Controller\Translation\TranslationRefreshController;
 use Gingerminds\MultisiteBundle\DependencyInjection\Compiler\CacheContextResolverPass;
 use Gingerminds\MultisiteBundle\Doctrine\Filter\LanguageFilter;
 use Gingerminds\MultisiteBundle\Doctrine\Filter\SiteFilter;
@@ -86,6 +87,9 @@ final class GingermindsMultisiteBundle extends AbstractBundle
         $parameters->set('gingerminds_multisite.translation.log_channel', $config['translation']['log_channel']);
         $parameters->set('gingerminds_multisite.translation.encryption_key', $config['translation']['encryption_key']);
 
+        $container->services()->get('gingerminds_multisite.translation.service')
+            ->tag('monolog.logger', ['channel' => $config['translation']['log_channel']]);
+
         foreach (self::RESOURCES as $name => $resource) {
             $entity = $this->resourceValue($config, $name, 'entity');
             $parameters->set('gingerminds_multisite.resource.' . $name . '.entity', $entity);
@@ -138,9 +142,35 @@ final class GingermindsMultisiteBundle extends AbstractBundle
             ]);
         }
 
+        $builder->prependExtensionConfig('framework', [
+            'cache' => [
+                'pools' => [
+                    'gingerminds_multisite.translation_cache' => ['adapter' => 'cache.app'],
+                ],
+            ],
+        ]);
+
+        if ($builder->hasExtension('monolog')) {
+            // Google API errors in their own file (Laravel `google` daily channel), unless configured otherwise.
+            $channel = $this->logChannel($builder);
+            $builder->prependExtensionConfig('monolog', [
+                'channels' => [$channel],
+                'handlers' => [
+                    'gingerminds_multisite_translation' => [
+                        'type' => 'rotating_file',
+                        'path' => '%kernel.logs_dir%/' . $channel . '.log',
+                        'level' => 'debug',
+                        'max_files' => 14,
+                        'channels' => [$channel],
+                    ],
+                ],
+            ]);
+        }
+
         // Prepended: the project configuration still overrides any key.
         $builder->prependExtensionConfig('gingerminds_core', [
             'resources' => $resources,
+            'permissions' => [TranslationRefreshController::PERMISSION],
             'admin_includes' => [
                 'sidebar_bottom' => ['@GingermindsMultisite/admin/_site_switcher.html.twig'],
             ],
@@ -155,6 +185,24 @@ final class GingermindsMultisiteBundle extends AbstractBundle
         $value = $config['resources'][$name][$key] ?? null;
 
         return \is_string($value) && '' !== $value ? $value : self::RESOURCES[$name][$key];
+    }
+
+    /**
+     * `translation.log_channel` of the project configuration (the last one wins), `google` by default.
+     */
+    private function logChannel(ContainerBuilder $builder): string
+    {
+        $channel = 'google';
+
+        foreach ($builder->getExtensionConfig($this->extensionAlias) as $config) {
+            $value = $config['translation']['log_channel'] ?? null;
+
+            if (\is_string($value) && '' !== $value) {
+                $channel = $value;
+            }
+        }
+
+        return $channel;
     }
 
     /**

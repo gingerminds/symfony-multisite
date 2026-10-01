@@ -7,9 +7,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 use Gingerminds\CoreBundle\ApiPlatform\State\ResourceProvider;
 use Gingerminds\MultisiteBundle\ApiPlatform\Metadata\ContextHeaderParameterProvider;
 use Gingerminds\MultisiteBundle\Context\SiteContextResolver;
-use Gingerminds\MultisiteBundle\Model\LanguageContextedInterface;
-use Gingerminds\MultisiteBundle\Model\SiteContextedInterface;
-use Gingerminds\MultisiteBundle\Model\TranslatableInterface;
+use Gingerminds\MultisiteBundle\Model\LanguageScopedInterface;
+use Gingerminds\MultisiteBundle\Model\SiteScopedInterface;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
 
 /*
@@ -23,13 +22,12 @@ return static function (ContainerConfigurator $container): void {
         ->tag('api_platform.state_provider');
 
     $siteHeader = 'Restricts the response to the given site (id or code). Falls back to the request host, then to the first site, when omitted.';
-    $languageHeader = 'Selects the translations and language scoped rows to return. Falls back to the site default language when omitted or unmatched.';
+    $languageHeader = 'Selects the language of the response (translations, language scoped rows): the first language enabled on the site, else its default language.';
 
     foreach (
         [
-            'site_contexted' => [SiteContextedInterface::class, SiteContextResolver::HEADER, $siteHeader],
-            'language_contexted' => [LanguageContextedInterface::class, 'Accept-Language', $languageHeader],
-            'translatable' => [TranslatableInterface::class, 'Accept-Language', $languageHeader],
+            'site' => [SiteScopedInterface::class, SiteContextResolver::HEADER, $siteHeader],
+            'language' => [LanguageScopedInterface::class, 'Accept-Language', $languageHeader],
         ] as $name => [$marker, $header, $description]
     ) {
         $services->set('gingerminds_multisite.api.header_parameter.' . $name, ContextHeaderParameterProvider::class)

@@ -10,6 +10,10 @@ services:
         resource: '../Controller/'
         tags: ['controller.service_arguments']
 
+    # No Google Drive call in the tests.
+    gingerminds_multisite.translation.source:
+        class: Gingerminds\MultisiteBundle\Tests\Application\Translation\FakeTranslationSource
+
     test.rate_limiter_storage:
         class: Symfony\Component\RateLimiter\Storage\InMemoryStorage
 

@@ -42,3 +42,8 @@ language:
         iso: Language code of the Accept-Language header (fr, en, de...).
     message:
         no_items: No language
+
+translations:
+    refresh_action: Refresh translations
+    refresh_dispatched: The translations refresh has been dispatched.
+    site_required: Please select a site whose Google Drive translations are configured.
