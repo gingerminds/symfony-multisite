@@ -8,7 +8,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  * Service definitions of the bundle, split by concern under config/services/.
  */
 return static function (ContainerConfigurator $container): void {
-    foreach (['doctrine', 'repository', 'security', 'form', 'controller', 'admin'] as $file) {
+    foreach (['doctrine', 'repository', 'context', 'security', 'form', 'controller', 'admin'] as $file) {
         $container->import('services/' . $file . '.php');
     }
 };

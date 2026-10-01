@@ -8,3 +8,9 @@ api_platform:
     resource: .
     type: api_platform
     prefix: /api
+
+# ContextTest: a front page seen through the site/language filters.
+test_content:
+    path: /content
+    controller: Gingerminds\MultisiteBundle\Tests\Application\Controller\ContentController
+    methods: [GET]

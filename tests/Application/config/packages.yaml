@@ -36,6 +36,12 @@ doctrine:
         enable_native_lazy_objects: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: false
+        mappings:
+            TestApplication:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/Entity'
+                prefix: 'Gingerminds\MultisiteBundle\Tests\Application\Entity'
 
 twig:
     default_path: '%kernel.project_dir%/templates'

@@ -16,7 +16,11 @@ return static function (ContainerConfigurator $container): void {
         ->tag('gingerminds_core.admin_menu_provider');
 
     $services->set('gingerminds_multisite.twig.extension', MultisiteExtension::class)
-        ->args([service(SiteRepository::class), service('request_stack')])
+        ->args([
+            service(SiteRepository::class),
+            service('gingerminds_multisite.context.site'),
+            service('gingerminds_multisite.context.language'),
+        ])
         ->tag('twig.extension')
         ->tag('kernel.reset', ['method' => 'reset']);
 };

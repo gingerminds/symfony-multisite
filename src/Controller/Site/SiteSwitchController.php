@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gingerminds\MultisiteBundle\Controller\Site;
 
+use Gingerminds\MultisiteBundle\Context\SiteContextResolver;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +14,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 final readonly class SiteSwitchController
 {
-    public const string SESSION_KEY = 'admin_site_id';
+    public const string SESSION_KEY = SiteContextResolver::SESSION_KEY;
     public const string CSRF_TOKEN_ID = 'gingerminds_multisite_site_switch';
 
     public function __construct(

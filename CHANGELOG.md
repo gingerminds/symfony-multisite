@@ -21,3 +21,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Admin site switcher at the bottom of the sidebar, above the user menu
   (`gingerminds_core.admin_includes.sidebar_bottom`), shown only when there is more than one
   site (`admin_site_id` session key).
+- Current site and language: `SiteContext` (admin switcher choice in session, then `X-Site-Id`
+  header, request host, first site) and `LanguageContext` (Accept-Language among the site
+  languages, site default language as fallback), resolved once per main request or set
+  explicitly (`setSite()`, `setLanguages()`); `gm_current_site()` / `gm_current_language()`.
+- The core API response cache varies with the current site and language
+  (`SiteLanguageCacheContextResolver`).
+- `SiteContextedInterface` / `SiteContextedTrait` (`site_id`, current site on creation) and the
+  `gingerminds_site` Doctrine filter (current site and shared rows, enabled on HTTP requests);
+  `SiteQuery::restrict()` for an explicit site scope.
+- `LanguageContextedInterface` / `LanguageContextedTrait` (`<entity>_language` join table) and
+  the `gingerminds_language` Doctrine filter.
+- `TranslatableInterface` / `TranslatableTrait`, `TranslationInterface` / `TranslationTrait`
+  (`<Entity>Translation`, `<owner>_id` + `language_id`, mapped automatically): current
+  translation with fallback, `getTranslation()`; `HasTranslatedTitleAndSlugTrait`.
+

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Gingerminds\MultisiteBundle\Twig;
 
-use Gingerminds\MultisiteBundle\Controller\Site\SiteSwitchController;
+use Gingerminds\MultisiteBundle\Context\LanguageContext;
+use Gingerminds\MultisiteBundle\Context\SiteContext;
+use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Service\ResetInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -19,7 +20,8 @@ final class MultisiteExtension extends AbstractExtension implements ResetInterfa
 
     public function __construct(
         private readonly SiteRepository $siteRepository,
-        private readonly RequestStack $requestStack,
+        private readonly SiteContext $siteContext,
+        private readonly LanguageContext $languageContext,
     ) {
     }
 
@@ -27,7 +29,9 @@ final class MultisiteExtension extends AbstractExtension implements ResetInterfa
     {
         return [
             new TwigFunction('gm_multisite_switchable_sites', $this->switchableSites(...)),
-            new TwigFunction('gm_multisite_admin_site', $this->adminSite(...)),
+            new TwigFunction('gm_multisite_admin_site', $this->siteContext->site(...)),
+            new TwigFunction('gm_current_site', $this->siteContext->site(...)),
+            new TwigFunction('gm_current_language', $this->currentLanguage(...)),
         ];
     }
 
@@ -43,22 +47,9 @@ final class MultisiteExtension extends AbstractExtension implements ResetInterfa
         return \count($this->sites) > 1 ? $this->sites : [];
     }
 
-    /**
-     * The site the admin works on (switcher choice in session), the first one by default.
-     */
-    public function adminSite(): ?SiteInterface
+    public function currentLanguage(): ?LanguageInterface
     {
-        $sites = $this->switchableSites();
-        $session = $this->requestStack->getCurrentRequest()?->hasPreviousSession() ? $this->requestStack->getSession() : null;
-        $id = $session?->get(SiteSwitchController::SESSION_KEY);
-
-        foreach ($sites as $site) {
-            if ($site->getId() === $id) {
-                return $site;
-            }
-        }
-
-        return $sites[0] ?? null;
+        return $this->languageContext->current();
     }
 
     public function reset(): void

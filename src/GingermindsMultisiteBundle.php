@@ -7,6 +7,9 @@ namespace Gingerminds\MultisiteBundle;
 use Gingerminds\CoreBundle\DependencyInjection\Compiler\OverriddenEntityPass;
 use Gingerminds\MultisiteBundle\Controller\Language\LanguageController;
 use Gingerminds\MultisiteBundle\Controller\Site\SiteController;
+use Gingerminds\MultisiteBundle\DependencyInjection\Compiler\CacheContextResolverPass;
+use Gingerminds\MultisiteBundle\Doctrine\Filter\LanguageFilter;
+use Gingerminds\MultisiteBundle\Doctrine\Filter\SiteFilter;
 use Gingerminds\MultisiteBundle\Entity\Language\Language;
 use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
 use Gingerminds\MultisiteBundle\Entity\Site\Site;
@@ -55,6 +58,13 @@ final class GingermindsMultisiteBundle extends AbstractBundle
     public function getPath(): string
     {
         return \dirname(__DIR__);
+    }
+
+    public function build(ContainerBuilder $container): void
+    {
+        parent::build($container);
+
+        $container->addCompilerPass(new CacheContextResolverPass());
     }
 
     public function configure(DefinitionConfigurator $definition): void
@@ -112,6 +122,11 @@ final class GingermindsMultisiteBundle extends AbstractBundle
                 'mappings' => [
                     'GingermindsMultisiteSite' => $this->mapping('Site'),
                     'GingermindsMultisiteLanguage' => $this->mapping('Language'),
+                ],
+                // Enabled per request by ContextFilterListener.
+                'filters' => [
+                    SiteFilter::NAME => ['class' => SiteFilter::class, 'enabled' => false],
+                    LanguageFilter::NAME => ['class' => LanguageFilter::class, 'enabled' => false],
                 ],
             ],
         ]);
