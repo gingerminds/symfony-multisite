@@ -1,0 +1,71 @@
+{
+    "name": "gingerminds/symfony-multisite",
+    "description": "Multisite and multi-language functionalities for Gingerminds Symfony projects",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gingerminds"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "ext-sodium": "*",
+        "api-platform/doctrine-orm": "^4.4",
+        "api-platform/symfony": "^4.4",
+        "doctrine/doctrine-bundle": "^2.18 || ^3.0",
+        "doctrine/orm": "^3.5",
+        "gingerminds/symfony-core": "^1.4",
+        "google/apiclient": "^2.18",
+        "phpoffice/phpspreadsheet": "^3.5 || ^4.0 || ^5.0",
+        "symfony/cache": "^8.1",
+        "symfony/form": "^8.1",
+        "symfony/framework-bundle": "^8.1",
+        "symfony/security-bundle": "^8.1",
+        "symfony/serializer": "^8.1",
+        "symfony/translation": "^8.1",
+        "symfony/twig-bundle": "^8.1",
+        "symfony/validator": "^8.1"
+    },
+    "require-dev": {
+        "dama/doctrine-test-bundle": "^8.2",
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
+        "phpunit/phpunit": "^12.0",
+        "rector/rector": "^2.0",
+        "squizlabs/php_codesniffer": "^3.0",
+        "symfony/browser-kit": "^8.1",
+        "symfony/css-selector": "^8.1",
+        "symfony/maker-bundle": "^1.60",
+        "symfony/messenger": "^8.1",
+        "symfony/phpunit-bridge": "^8.1",
+        "symfony/yaml": "^8.1"
+    },
+    "suggest": {
+        "symfony/maker-bundle": "Required for the --translated option of the make:gm:* generators",
+        "symfony/messenger": "Refreshes the front translations cache in the background",
+        "symfony/monolog-bundle": "Routes the Google API errors to their own log file (google channel)"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gingerminds\\MultisiteBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Gingerminds\\MultisiteBundle\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": false,
+            "symfony/flex": false,
+            "symfony/runtime": false
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
