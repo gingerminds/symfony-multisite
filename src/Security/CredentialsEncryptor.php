@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Gingerminds\MultisiteBundle\Security;
 
+use Gingerminds\MultisiteBundle\Exception\CredentialsEncryptionException;
+
 final readonly class CredentialsEncryptor
 {
     private const string PREFIX = 'v1:';
@@ -28,14 +30,14 @@ final readonly class CredentialsEncryptor
     /**
      * @return array<mixed>
      *
-     * @throws \RuntimeException when the value cannot be decrypted (other key, corrupted value)
+     * @throws CredentialsEncryptionException when the value cannot be decrypted (other key, corrupted value)
      */
     public function decrypt(string $encrypted): array
     {
         $raw = str_starts_with($encrypted, self::PREFIX) ? base64_decode(substr($encrypted, \strlen(self::PREFIX)), true) : false;
 
         if (false === $raw || \strlen($raw) <= \SODIUM_CRYPTO_SECRETBOX_NONCEBYTES) {
-            throw new \RuntimeException('Invalid encrypted credentials.');
+            throw CredentialsEncryptionException::invalidFormat();
         }
 
         $plain = sodium_crypto_secretbox_open(
@@ -45,7 +47,7 @@ final readonly class CredentialsEncryptor
         );
 
         if (false === $plain) {
-            throw new \RuntimeException('The credentials cannot be decrypted with the configured encryption key.');
+            throw CredentialsEncryptionException::cannotDecrypt();
         }
 
         $credentials = json_decode($plain, true, flags: \JSON_THROW_ON_ERROR);
@@ -54,12 +56,12 @@ final readonly class CredentialsEncryptor
     }
 
     /**
-     * @throws \LogicException when the encryption key is empty (e.g. an unset APP_SECRET)
+     * @throws CredentialsEncryptionException when the encryption key is empty (e.g. an unset APP_SECRET)
      */
     private function key(): string
     {
         if ('' === trim($this->secret)) {
-            throw new \LogicException('The credentials encryption key is empty: set APP_SECRET (or gingerminds_multisite.translation.encryption_key).');
+            throw CredentialsEncryptionException::emptyKey();
         }
 
         return sodium_crypto_generichash($this->secret, '', \SODIUM_CRYPTO_SECRETBOX_KEYBYTES);

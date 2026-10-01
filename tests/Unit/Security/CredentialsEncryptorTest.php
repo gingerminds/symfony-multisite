@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gingerminds\MultisiteBundle\Tests\Unit\Security;
 
+use Gingerminds\MultisiteBundle\Exception\CredentialsEncryptionException;
 use Gingerminds\MultisiteBundle\Security\CredentialsEncryptor;
 use PHPUnit\Framework\TestCase;
 
@@ -26,19 +27,19 @@ final class CredentialsEncryptorTest extends TestCase
     {
         $encrypted = new CredentialsEncryptor('app-secret')->encrypt(['a' => 1]);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(CredentialsEncryptionException::class);
         new CredentialsEncryptor('rotated-secret')->decrypt($encrypted);
     }
 
     public function testRefusesAnEmptyKey(): void
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(CredentialsEncryptionException::class);
         new CredentialsEncryptor(' ')->encrypt(['a' => 1]);
     }
 
     public function testRejectsAnUnknownFormat(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(CredentialsEncryptionException::class);
         new CredentialsEncryptor('app-secret')->decrypt('{"plain": "json"}');
     }
 }

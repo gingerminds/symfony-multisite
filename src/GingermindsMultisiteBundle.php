@@ -20,6 +20,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Extension\ConfigurationExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
@@ -161,7 +162,7 @@ final class GingermindsMultisiteBundle extends AbstractBundle
         $configuration = $extension instanceof ConfigurationExtensionInterface ? $extension->getConfiguration([], $builder) : null;
 
         if (!$configuration instanceof ConfigurationInterface) {
-            throw new \LogicException('The GingermindsMultisiteBundle configuration cannot be resolved.');
+            throw new LogicException('The GingermindsMultisiteBundle configuration cannot be resolved.');
         }
 
         // Only the resources are needed here: the other keys may hold env placeholders

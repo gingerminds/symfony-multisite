@@ -6,6 +6,7 @@ namespace Gingerminds\MultisiteBundle\Model;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
+use Gingerminds\MultisiteBundle\Exception\MappingException;
 
 /**
  * Implements TranslationInterface. The owner class defaults to the translation
@@ -28,7 +29,7 @@ trait TranslationTrait
         $class = (string) preg_replace('/Translation$/', '', static::class);
 
         if (!is_a($class, TranslatableInterface::class, true)) {
-            throw new \LogicException(\sprintf('"%s" must implement "%s", or override "%s::getTranslatableEntityClass()".', $class, TranslatableInterface::class, static::class));
+            throw MappingException::invalidRelatedClass($class, TranslatableInterface::class, static::class, 'getTranslatableEntityClass');
         }
 
         return $class;

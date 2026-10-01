@@ -7,6 +7,7 @@ namespace Gingerminds\MultisiteBundle\Model;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
+use Gingerminds\MultisiteBundle\Exception\MappingException;
 
 /**
  * Implements TranslatableInterface. The translation class defaults to the
@@ -35,7 +36,7 @@ trait TranslatableTrait
         $class = static::class . 'Translation';
 
         if (!is_a($class, TranslationInterface::class, true)) {
-            throw new \LogicException(\sprintf('"%s" must implement "%s", or override "%s::getTranslationEntityClass()".', $class, TranslationInterface::class, static::class));
+            throw MappingException::invalidRelatedClass($class, TranslationInterface::class, static::class, 'getTranslationEntityClass');
         }
 
         return $class;

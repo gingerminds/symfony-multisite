@@ -7,6 +7,7 @@ namespace Gingerminds\MultisiteBundle\Doctrine\Filter;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ManyToManyOwningSideMapping;
 use Doctrine\ORM\Query\Filter\SQLFilter;
+use Gingerminds\MultisiteBundle\Exception\MappingException;
 use Gingerminds\MultisiteBundle\Model\LanguageContextedInterface;
 
 /**
@@ -32,7 +33,7 @@ final class LanguageFilter extends SQLFilter
         $mapping = $targetEntity->getAssociationMapping(LanguageContextedInterface::LANGUAGES_FIELD);
 
         if (!$mapping instanceof ManyToManyOwningSideMapping) {
-            throw new \LogicException(\sprintf('"%s::$%s" must be a many-to-many owning side.', $targetEntity->getName(), LanguageContextedInterface::LANGUAGES_FIELD));
+            throw MappingException::languagesNotOwningManyToMany($targetEntity->getName(), LanguageContextedInterface::LANGUAGES_FIELD);
         }
 
         $joinTable = $mapping->joinTable;
