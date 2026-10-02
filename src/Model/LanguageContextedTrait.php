@@ -13,7 +13,7 @@ use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
  * Implements LanguageContextedInterface. The join table defaults to
  * `<entity>_language` / `language_id` (e.g. `media_language`, see
  * LanguageContextedMetadataListener): rename it with an
- * #[ORM\AssociationOverride(name: 'languages', joinTable: ...)].
+ * #[ORM\AssociationOverrides([new ORM\AssociationOverride(name: 'languages', joinTable: ...)])].
  */
 trait LanguageContextedTrait
 {

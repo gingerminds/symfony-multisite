@@ -65,7 +65,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Documentation: installation, configuration, context, entities & traits, forms, API, front
+  translations, commands and the "Coming from laravel-multisite" guide.
 - Development: the Makefile runs PHP in the `composer` image (zip extension of PhpSpreadsheet),
   `config.platform.ext-gd` (as the Laravel package); `symfony/doctrine-bridge` and
   `symfony/property-access` required explicitly.
 
+### Fixed
+
+- `LanguageContextedTrait` with an overridden join table name (e.g. the Laravel `language_media`
+  pivot): its language column is `language_id`, no longer `language_interface_id`.

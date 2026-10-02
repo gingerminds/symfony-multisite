@@ -9,7 +9,7 @@ use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
 
 /**
  * Implements SiteContextedInterface: nullable `site_id` (null: shared by every
- * site). Change the deletion behaviour with an #[ORM\AssociationOverride] if needed.
+ * site). Change the deletion behaviour with #[ORM\AssociationOverrides] if needed.
  */
 trait SiteContextedTrait
 {

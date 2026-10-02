@@ -13,6 +13,7 @@ use Gingerminds\MultisiteBundle\Context\SiteContext;
 use Gingerminds\MultisiteBundle\Doctrine\SiteQuery;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\Article;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\ArticleTranslation;
+use Gingerminds\MultisiteBundle\Tests\Application\Entity\Document;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\Media;
 use Gingerminds\MultisiteBundle\Tests\Functional\ApiTestCase;
 
@@ -121,6 +122,14 @@ final class ContextServicesTest extends ApiTestCase
         self::assertInstanceOf(ManyToManyOwningSideMapping::class, $media);
         self::assertSame('media_language', $media->joinTable->name);
         self::assertSame(['media_id', 'language_id'], $media->joinTableColumns);
+
+        // Overridden join table name (Laravel pivot), its default columns renamed too.
+        $document = $this->entityManager()->getClassMetadata(Document::class);
+        $languages = $document->getAssociationMapping('languages');
+        self::assertInstanceOf(ManyToManyOwningSideMapping::class, $languages);
+        self::assertSame('language_document', $languages->joinTable->name);
+        self::assertSame(['document_id', 'language_id'], $languages->joinTableColumns);
+        self::assertSame('SET NULL', $document->getAssociationMapping('site')->joinColumns[0]->onDelete ?? null);
     }
 
     private function title(?object $translation): ?string

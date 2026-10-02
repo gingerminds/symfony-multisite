@@ -13,8 +13,9 @@ use Gingerminds\MultisiteBundle\Model\LanguageContextedInterface;
 /**
  * Doctrine names a default join table after the declared target, here the
  * interface: LanguageContextedTrait would get `media_language_interface` /
- * `language_interface_id`. Renamed to `media_language` / `language_id`; a join
- * table named explicitly (AssociationOverride) is kept.
+ * `language_interface_id`. Renamed to `media_language` / `language_id`; names set
+ * explicitly (AssociationOverrides) are kept, the default column of an overridden
+ * table renamed too.
  */
 final class LanguageContextedMetadataListener
 {
@@ -32,21 +33,23 @@ final class LanguageContextedMetadataListener
         }
 
         $mapping = $metadata->getAssociationMapping($field);
-        $namingStrategy = $args->getEntityManager()->getConfiguration()->getNamingStrategy();
 
-        $defaultName = $namingStrategy->joinTableName($metadata->getName(), LanguageInterface::class, $field);
-
-        if (!$mapping instanceof ManyToManyOwningSideMapping || $mapping->joinTable->name !== $defaultName) {
+        if (!$mapping instanceof ManyToManyOwningSideMapping) {
             return;
         }
 
-        $mapping->joinTable->name = $namingStrategy->joinTableName($metadata->getName(), Language::class, $field);
+        $namingStrategy = $args->getEntityManager()->getConfiguration()->getNamingStrategy();
 
+        if ($mapping->joinTable->name === $namingStrategy->joinTableName($metadata->getName(), LanguageInterface::class, $field)) {
+            $mapping->joinTable->name = $namingStrategy->joinTableName($metadata->getName(), Language::class, $field);
+        }
+
+        // Also when only the join table name is overridden: its columns keep their defaults.
         $inverseColumn = $mapping->joinTable->inverseJoinColumns[0];
         $oldName = $inverseColumn->name;
         $newName = $namingStrategy->joinKeyColumnName(Language::class, $inverseColumn->referencedColumnName);
 
-        if ($oldName === $newName) {
+        if ($oldName !== $namingStrategy->joinKeyColumnName(LanguageInterface::class, $inverseColumn->referencedColumnName)) {
             return;
         }
 
