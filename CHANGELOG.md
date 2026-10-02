@@ -62,3 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `make:gm:crud-controller` (with symfony/maker-bundle): translatable entity and its
   `<Name>Translation` entity (`<name>_translations`, no field), `<Name>TranslationType` and a
   `translations` TranslationsType field, admin `_form` template with the language tabs.
+
+### Changed
+
+- Development: the Makefile runs PHP in the `composer` image (zip extension of PhpSpreadsheet),
+  `config.platform.ext-gd` (as the Laravel package); `symfony/doctrine-bridge` and
+  `symfony/property-access` required explicitly.
+

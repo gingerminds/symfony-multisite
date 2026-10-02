@@ -19,8 +19,10 @@
         "google/apiclient": "^2.18",
         "phpoffice/phpspreadsheet": "^3.5 || ^4.0 || ^5.0",
         "symfony/cache": "^8.1",
+        "symfony/doctrine-bridge": "^8.1",
         "symfony/form": "^8.1",
         "symfony/framework-bundle": "^8.1",
+        "symfony/property-access": "^8.1",
         "symfony/security-bundle": "^8.1",
         "symfony/serializer": "^8.1",
         "symfony/translation": "^8.1",
@@ -59,6 +61,9 @@
         }
     },
     "config": {
+        "platform": {
+            "ext-gd": "8.4"
+        },
         "sort-packages": true,
         "allow-plugins": {
             "php-http/discovery": false,

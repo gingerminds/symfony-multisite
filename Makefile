@@ -9,7 +9,8 @@
 # host's generated files (the dart-sass binary downloaded for macOS cannot run
 # on Linux, caches hold host paths).
 VAR_VOLUMES=-v gingerminds-multisite-var:/app/var -v gingerminds-multisite-app-var:/app/tests/Application/var
-PHP=docker run --rm -v $(PWD):/app $(VAR_VOLUMES) -w /app php:8.4-cli
+# The composer image has the zip extension needed by PhpSpreadsheet (php:8.4-cli has not).
+PHP=docker run --rm -v $(PWD):/app $(VAR_VOLUMES) -w /app composer:latest
 COMPOSER=docker run --rm -v $(PWD):/app -w /app composer:latest
 CONSOLE=$(PHP) php tests/Application/bin/console
 
