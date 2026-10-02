@@ -17,6 +17,7 @@ use Gingerminds\MultisiteBundle\Entity\Site\Site;
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
 use Gingerminds\MultisiteBundle\Form\Language\LanguageType;
 use Gingerminds\MultisiteBundle\Form\Site\SiteType;
+use Symfony\Bundle\MakerBundle\MakerBundle;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\Config\Definition\Processor;
@@ -80,6 +81,11 @@ final class GingermindsMultisiteBundle extends AbstractBundle
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         $container->import('../config/services.php');
+
+        // make:gm:* `--translated` option (dev only dependency).
+        if (class_exists(MakerBundle::class)) {
+            $container->import('../config/services/maker.php');
+        }
 
         $parameters = $container->parameters();
         $parameters->set('gingerminds_multisite.translation.enabled', $config['translation']['enabled']);

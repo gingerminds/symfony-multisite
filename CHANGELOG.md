@@ -58,3 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Admin "Refresh translations" button on the site form (`manage translations` permission,
   synced by `gingerminds:permissions:sync`): `RefreshSiteTranslations` Messenger message,
   handled right away without Messenger.
+- `--translated` option of `make:gm:resource`, `make:gm:entity`, `make:gm:form` and
+  `make:gm:crud-controller` (with symfony/maker-bundle): translatable entity and its
+  `<Name>Translation` entity (`<name>_translations`, no field), `<Name>TranslationType` and a
+  `translations` TranslationsType field, admin `_form` template with the language tabs.
