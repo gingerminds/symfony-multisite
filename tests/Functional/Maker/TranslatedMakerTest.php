@@ -70,7 +70,10 @@ final class TranslatedMakerTest extends KernelTestCase
 
         $template = $this->file('templates/admin/product/_form.html.twig');
         self::assertStringContainsString('form_widget(form.translations)', $template);
+        self::assertStringContainsString("'product.tab.general'|trans({}, 'admin')", $template);
+        self::assertStringContainsString('data-bs-target="#product-pane-{{ tab.id }}"', $template);
         self::assertStringContainsString('translations: Translations', $this->file('translations/admin.en.yaml'));
+        self::assertStringContainsString('general: General', $this->file('translations/admin.en.yaml'));
         self::assertStringContainsString('make:entity', $output);
 
         foreach (['src/Entity/Catalog/Product.php', 'src/Entity/Catalog/ProductTranslation.php', 'src/Form/Catalog/ProductType.php', 'src/Form/Catalog/ProductTranslationType.php'] as $file) {

@@ -61,7 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `--translated` option of `make:gm:resource`, `make:gm:entity`, `make:gm:form` and
   `make:gm:crud-controller` (with symfony/maker-bundle): translatable entity and its
   `<Name>Translation` entity (`<name>_translations`, no field), `<Name>TranslationType` and a
-  `translations` TranslationsType field, admin `_form` template with the language tabs.
+  `translations` TranslationsType field, admin `_form` template with General / Translations
+  tabs (the language tabs in the second, the first invalid tab open).
 
 ### Changed
 

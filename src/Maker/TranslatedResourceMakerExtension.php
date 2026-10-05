@@ -24,7 +24,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * `--translated` option of the make:gm:* makers: a translatable resource with its
  * `<Name>Translation` entity (no field: add the translated ones), the
- * `<Name>TranslationType` form and a TranslationsType field rendered as language tabs.
+ * `<Name>TranslationType` form and a TranslationsType field; the template has General / Translations tabs,
+ * the language tabs in the second.
  */
 final class TranslatedResourceMakerExtension implements ResourceMakerExtensionInterface
 {
@@ -104,7 +105,10 @@ final class TranslatedResourceMakerExtension implements ResourceMakerExtensionIn
 
         if (\in_array('template', $parts, true)) {
             $context->resourceGenerator->addTranslations($context->generator, $context->io, 'admin', [
-                $resource->snake => ['field' => ['translations' => 'Translations']],
+                $resource->snake => [
+                    'tab' => ['general' => 'General'],
+                    'field' => ['translations' => 'Translations'],
+                ],
             ]);
         }
 

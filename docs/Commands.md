@@ -14,7 +14,7 @@ bin/console make:gm:resource Catalog/Product --translated [--api]
 | `make:gm:resource` | everything below |
 | `make:gm:entity` | `Product` implements `TranslatableInterface` (+ eager loaded translations), `ProductTranslation` entity (table `product_translations`, no field) |
 | `make:gm:form` | `ProductType` with a `translations` [TranslationsType](Forms.md) field, `ProductTranslationType` |
-| `make:gm:crud-controller` | `templates/admin/product/_form.html.twig` with a Translations card (language tabs), `product.field.translations` label |
+| `make:gm:crud-controller` | `templates/admin/product/_form.html.twig` with General / Translations tabs (language tabs in the second, the first invalid tab open), `product.tab.general` and `product.field.translations` labels |
 
 Then:
 
