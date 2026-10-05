@@ -1,0 +1,34 @@
+{% extends '@GingermindsCore/crud/list.html.twig' %}
+{% trans_default_domain 'GingermindsMultisite' %}
+
+{% set columns = [
+    {label: '#', align: 'center'},
+    {label: 'site.field.code', property: 'code', sortable: true},
+    {label: 'site.field.url', property: 'url', sortable: true},
+    {label: 'site.field.languages'},
+    {label: 'site.field.default_language'},
+    {label: 'common.actions', align: 'end', translation_domain: 'GingermindsCore'},
+] %}
+
+{% block table_empty_icon %}bi-globe2{% endblock %}
+
+{% block table_row %}
+    <td class="text-center text-muted small">{{ row_number }}</td>
+    <td>
+        {% if is_granted('EDIT', item) %}
+            <a href="{{ path(resource.route('edit'), {id: item.id}) }}" class="text-body fw-medium">{{ item.code }}</a>
+        {% else %}
+            <span class="fw-medium">{{ item.code }}</span>
+        {% endif %}
+    </td>
+    <td class="text-muted">{{ item.url }}</td>
+    <td>
+        {% for language in item.languages %}
+            <span class="badge bg-light text-body border fs-11">{{ language.iso|upper }}</span>
+        {% else %}
+            <span class="text-muted">-</span>
+        {% endfor %}
+    </td>
+    <td>{{ item.defaultLanguage ? item.defaultLanguage.label : '-' }}</td>
+    <td class="text-end">{{ block('row_actions') }}</td>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% trans_default_domain 'GingermindsMultisite' %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header py-3">
+        <h5 class="card-title mb-0"><i class="bi bi-translate me-1 text-primary"></i> {{ 'language.name_s'|trans }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            {{ form_row(form.iso) }}
+            {{ form_row(form.label) }}
+        </div>
+    </div>
+</div>

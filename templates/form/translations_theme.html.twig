@@ -1,0 +1,47 @@
+{#
+ # TranslationsType: one tab per language (ISO code, `*` on the required default
+ # language, an alert icon when the tab has errors), the first invalid tab open.
+ # Registered as a global form theme by the bundle.
+ #}
+{%- block gingerminds_translations_row -%}
+    <div class="col-12">
+        {{- form_label(form) -}}
+        {{- form_widget(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+{%- endblock gingerminds_translations_row -%}
+
+{%- block gingerminds_translations_widget -%}
+    {%- set active = null -%}
+    {%- for child in form -%}
+        {%- if active is null and not child.vars.valid -%}{%- set active = child.vars.name -%}{%- endif -%}
+    {%- endfor -%}
+    {%- set active = active ?? (form|first ? (form|first).vars.name : null) -%}
+    <div class="gm-translations" id="{{ id }}">
+        <ul class="nav nav-tabs" role="tablist">
+            {%- for child in form -%}
+                {%- set language = translation_languages[child.vars.name] -%}
+                {%- set is_active = child.vars.name == active -%}
+                <li class="nav-item" role="presentation">
+                    <button type="button" class="nav-link{{ is_active ? ' active' }}{{ child.vars.valid ? '' : ' text-danger' }}"
+                            id="{{ child.vars.id }}-tab" data-bs-toggle="tab" data-bs-target="#{{ child.vars.id }}-pane"
+                            role="tab" aria-controls="{{ child.vars.id }}-pane" aria-selected="{{ is_active ? 'true' : 'false' }}"
+                            title="{{ language.label }}">
+                        {{- language.iso|upper -}}
+                        {%- if language.default %} <span class="text-danger" aria-hidden="true">*</span>{% endif -%}
+                        {%- if not child.vars.valid %} <i class="bi bi-exclamation-circle" aria-hidden="true"></i>{% endif -%}
+                    </button>
+                </li>
+            {%- endfor -%}
+        </ul>
+        <div class="tab-content pt-3">
+            {%- for child in form -%}
+                <div class="tab-pane fade{{ child.vars.name == active ? ' show active' }}" id="{{ child.vars.id }}-pane"
+                     role="tabpanel" aria-labelledby="{{ child.vars.id }}-tab" tabindex="0">
+                    {{- form_errors(child) -}}
+                    {{- form_widget(child) -}}
+                </div>
+            {%- endfor -%}
+        </div>
+    </div>
+{%- endblock gingerminds_translations_widget -%}

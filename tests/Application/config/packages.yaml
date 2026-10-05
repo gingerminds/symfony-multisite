@@ -36,6 +36,12 @@ doctrine:
         enable_native_lazy_objects: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: false
+        mappings:
+            TestApplication:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/Entity'
+                prefix: 'Gingerminds\MultisiteBundle\Tests\Application\Entity'
 
 twig:
     default_path: '%kernel.project_dir%/templates'
@@ -87,9 +93,13 @@ security:
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: IS_AUTHENTICATED }
 
+parameters:
+    env(GINGERMINDS_MULTISITE_TRANSLATION_ENABLED): 'true'
+
 gingerminds_multisite:
     translation:
-        enabled: true
+        # Env placeholder on purpose: the bundle must not resolve it while prepending.
+        enabled: '%env(bool:GINGERMINDS_MULTISITE_TRANSLATION_ENABLED)%'
 
 # The test application is not the Composer root: Bootstrap SCSS lives in the bundle vendor/.
 symfonycasts_sass:

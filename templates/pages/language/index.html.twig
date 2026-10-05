@@ -1,0 +1,24 @@
+{% extends '@GingermindsCore/crud/list.html.twig' %}
+{% trans_default_domain 'GingermindsMultisite' %}
+
+{% set columns = [
+    {label: '#', align: 'center'},
+    {label: 'language.field.iso', property: 'iso', sortable: true},
+    {label: 'language.field.label', property: 'label', sortable: true},
+    {label: 'common.actions', align: 'end', translation_domain: 'GingermindsCore'},
+] %}
+
+{% block table_empty_icon %}bi-translate{% endblock %}
+
+{% block table_row %}
+    <td class="text-center text-muted small">{{ row_number }}</td>
+    <td><span class="badge bg-light text-body border fs-11">{{ item.iso|upper }}</span></td>
+    <td>
+        {% if is_granted('EDIT', item) %}
+            <a href="{{ path(resource.route('edit'), {id: item.id}) }}" class="text-body fw-medium">{{ item.label }}</a>
+        {% else %}
+            <span class="fw-medium">{{ item.label }}</span>
+        {% endif %}
+    </td>
+    <td class="text-end">{{ block('row_actions') }}</td>
+{% endblock %}
