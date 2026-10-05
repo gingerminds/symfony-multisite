@@ -1,0 +1,30 @@
+{% trans_default_domain 'GingermindsMultisite' %}
+{% set sites = gm_multisite_switchable_sites() %}
+{% if sites is not empty %}
+    {% set current = gm_multisite_admin_site() %}
+    <form method="post" action="{{ path('gingerminds_multisite_site_switch') }}" class="dropup gm-site-switcher" data-turbo="false">
+        <input type="hidden" name="_token" value="{{ csrf_token('gingerminds_multisite_site_switch') }}">
+        <button type="button" class="btn border-0 w-100 text-start d-flex align-items-center text-white dropdown-toggle sidebar-profile-toggle"
+                data-bs-toggle="dropdown" aria-expanded="false" title="{{ 'site_switcher.label'|trans }} : {{ current ? current.code }}">
+            <span class="sidebar-avatar bg-white bg-opacity-10 rounded-circle me-2 d-flex flex-shrink-0 align-items-center justify-content-center">
+                <i class="bi bi-globe2"></i>
+            </span>
+            <span class="profile-info">
+                <strong class="d-block text-truncate">{{ current ? current.code }}</strong>
+                <small class="profile-role d-block text-truncate">{{ 'site_switcher.label'|trans }}</small>
+            </span>
+        </button>
+        <ul class="dropdown-menu shadow">
+            {% for site in sites %}
+                {% set is_current = current and current.id == site.id %}
+                <li>
+                    <button type="submit" name="site_id" value="{{ site.id }}"
+                            class="dropdown-item d-flex align-items-center{{ is_current ? ' active' }}"
+                            {{ is_current ? 'aria-current="true"' }}>
+                        <i class="bi {{ is_current ? 'bi-check2' : 'bi-globe2' }} me-2"></i>{{ site.code }}
+                    </button>
+                </li>
+            {% endfor %}
+        </ul>
+    </form>
+{% endif %}

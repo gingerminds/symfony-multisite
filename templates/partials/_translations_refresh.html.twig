@@ -1,0 +1,9 @@
+{#
+ # Form refreshing the Google Drive translations cache of a site
+ # (TranslationRefreshController), submitted by a `form="gm-translations-refresh"`
+ # button (site form: Translations card). Variables: site.
+ #}
+<form method="post" action="{{ path('gingerminds_multisite_translations_refresh') }}" id="gm-translations-refresh" class="d-none" data-turbo="false">
+    <input type="hidden" name="_token" value="{{ csrf_token('gingerminds_multisite_translations_refresh') }}">
+    <input type="hidden" name="site_id" value="{{ site.id }}">
+</form>

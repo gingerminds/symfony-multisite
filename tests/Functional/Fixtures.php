@@ -10,6 +10,8 @@ use Gingerminds\CoreBundle\Entity\Role\Role;
 use Gingerminds\CoreBundle\Entity\Security\ApiToken;
 use Gingerminds\CoreBundle\Entity\User\Contributor;
 use Gingerminds\CoreBundle\Entity\User\User;
+use Gingerminds\MultisiteBundle\Entity\Language\Language;
+use Gingerminds\MultisiteBundle\Entity\Site\Site;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
@@ -92,5 +94,32 @@ final readonly class Fixtures
         $this->entityManager->flush();
 
         return $plain;
+    }
+
+    public function language(string $iso, ?string $label = null): Language
+    {
+        $language = new Language();
+        $language->setIso($iso);
+        $language->setLabel($label ?? strtoupper($iso));
+        $this->entityManager->persist($language);
+        $this->entityManager->flush();
+
+        return $language;
+    }
+
+    /**
+     * @param list<Language> $languages
+     */
+    public function site(string $code, array $languages = [], ?Language $default = null, string $url = 'https://example.com'): Site
+    {
+        $site = new Site();
+        $site->setCode($code);
+        $site->setUrl($url);
+        $site->setLanguages($languages);
+        $site->setDefaultLanguage($default);
+        $this->entityManager->persist($site);
+        $this->entityManager->flush();
+
+        return $site;
     }
 }

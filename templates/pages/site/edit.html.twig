@@ -1,0 +1,13 @@
+{% extends '@GingermindsCore/crud/form.html.twig' %}
+
+{% set can_refresh_translations = is_granted('manage translations') and gm_multisite_translations_enabled(entity) %}
+
+{% block form_body %}
+    {% include '@GingermindsMultisite/pages/site/_form.html.twig' %}
+{% endblock %}
+
+{% block additional_infos %}
+    {% if can_refresh_translations %}
+        {% include '@GingermindsMultisite/partials/_translations_refresh.html.twig' with {site: entity} only %}
+    {% endif %}
+{% endblock %}
