@@ -81,6 +81,23 @@ repositories and the context. The `site_language` / `site_front_urls` relations 
 class automatically (`SiteMetadataListener`: Doctrine forbids inverse sides on a mapped superclass).
 `Language` works the same way (`BaseLanguage`, `LanguageInterface`).
 
+## Extending the forms
+
+The site and language forms use the core form layout: their columns end with the
+`site_form_main` / `site_form_sidebar` and `language_form_main` / `language_form_sidebar`
+admin include slots, e.g. for the fields a bundle or a project adds to `SiteType` with a form
+type extension. See the core [Forms](https://github.com/gingerminds/symfony-core/blob/master/docs/templating/forms.md#form-layout-and-include-slots)
+documentation.
+
+```yaml
+# config/packages/gingerminds_core.yaml
+gingerminds_core:
+    admin_includes:
+        site_form_sidebar: ['admin/site/_seo.html.twig']
+```
+
+The `make:gm:* --translated` form template uses the same layout.
+
 ## Services
 
 Every service has a `gingerminds_multisite.*` id (`bin/console debug:container gingerminds_multisite`):

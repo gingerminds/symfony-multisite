@@ -83,6 +83,7 @@ final class TranslatedFormTemplateTest extends ApiTestCase
 
         $template = self::getContainer()->get(Environment::class)->createTemplate("{% form_theme form '@GingermindsCore/form/theme.html.twig' %}" . $source);
 
-        return new Crawler($template->render(['form' => $form->createView()]));
+        // As AbstractCrudController: the resource gives the form include slots of the layout.
+        return new Crawler($template->render(['form' => $form->createView(), 'resource' => (object) ['name' => 'product']]));
     }
 }

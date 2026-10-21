@@ -105,3 +105,8 @@ gingerminds_multisite:
 symfonycasts_sass:
     sass_options:
         load_path: ['%kernel.project_dir%/../../vendor/twbs']
+
+# SiteAdminTest: a template included in the site form sidebar.
+gingerminds_core:
+    admin_includes:
+        site_form_sidebar: ['site/_form_sidebar.html.twig']

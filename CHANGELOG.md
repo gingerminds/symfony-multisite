@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Form include slots of the core 1.7 form layout on the site and language forms
+  (`site_form_main|sidebar`, `language_form_main|sidebar`) and on the `make:gm:* --translated`
+  form template, e.g. for the fields another bundle adds to `SiteType`.
+
+### Changed
+
+- Requires `gingerminds/symfony-core` ^1.7.
+
+## [1.0.0] - 2026-10-05
+
+### Added
+
 - `GingermindsMultisiteBundle` skeleton (`gingerminds_multisite` configuration: overridable
   `site` / `language` resources, `translation` options) and its test application.
 - `Site` and `Language` entities (overridable `BaseSite` / `BaseLanguage` mapped superclasses,

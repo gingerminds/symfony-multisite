@@ -57,6 +57,20 @@ final class SiteAdminTest extends ApiTestCase
         self::assertCount(0, $crawler->filter('#gm-sidebar a[href="/admin/users"]'));
     }
 
+    public function testSiteFormSidebarIncludesTheConfiguredTemplates(): void
+    {
+        $fr = $this->fixtures->language('fr');
+        $site = $this->fixtures->site('corporate', [$fr], $fr);
+        $this->client->loginUser($this->fixtures->user('sidebar@example.com', superAdmin: true), 'admin');
+
+        $crawler = $this->client->request('GET', '/admin/sites/' . $site->getId() . '/edit');
+        self::assertResponseIsSuccessful();
+        self::assertSame('corporate', $crawler->filter('.col-lg-4 #test-site-form-sidebar')->text());
+
+        $crawler = $this->client->request('GET', '/admin/sites/new');
+        self::assertSame('new', $crawler->filter('.col-lg-4 #test-site-form-sidebar')->text());
+    }
+
     public function testCreateSite(): void
     {
         $fr = $this->fixtures->language('fr');
