@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- No `tabindex` on the tab panes of the translations form theme and of the `make:gm:* --translated`
+  form template (SonarQube: `tabindex` on non interactive elements).
+
+## [1.2.0] - 2026-10-21
+
 ### Added
 
 - `translation_fallback` option (default `true`, as Laravel): `false` removes the fallback language
