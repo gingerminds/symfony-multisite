@@ -37,6 +37,8 @@ return static function (ContainerConfigurator $container): void {
             service('gingerminds_multisite.context.site'),
             service('gingerminds_multisite.context.language_resolver'),
             service('request_stack'),
+            param('gingerminds_multisite.translation_fallback'),
+            param('gingerminds_core.api.prefix'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
     $services->alias(LanguageContext::class, 'gingerminds_multisite.context.language');

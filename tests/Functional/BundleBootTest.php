@@ -20,6 +20,7 @@ final class BundleBootTest extends ApiTestCase
         self::assertTrue(self::getContainer()->getParameter('gingerminds_multisite.translation.enabled'));
         self::assertSame(300, self::getContainer()->getParameter('gingerminds_multisite.translation.cache_ttl'));
         self::assertSame('test-secret', self::getContainer()->getParameter('gingerminds_multisite.translation.encryption_key'));
+        self::assertTrue(self::getContainer()->getParameter('gingerminds_multisite.translation_fallback'));
     }
 
     public function testAdminDashboardRenders(): void

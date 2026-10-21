@@ -45,6 +45,16 @@ Resolved on the current site (no site: `null` for both):
 - **current**: the first `Accept-Language` code (primary subtag, header order: `fr-FR,en;q=0.8`
   gives `fr`, then `en`) enabled on the site, else the fallback.
 
+A translatable entity shows its translation in the current language, else in the fallback one
+(`ids()`). On the API requests (under `gingerminds_core.api.prefix`), `translation_fallback: false`
+removes the fallback: a missing translation gives `null` fields, the rows stay in the collections
+(the front decides). The admin, the commands and the other requests always fall back.
+
+```yaml
+gingerminds_multisite:
+    translation_fallback: false
+```
+
 ## Outside of a request
 
 Commands and message handlers have no request: no current site nor language (the Doctrine filters

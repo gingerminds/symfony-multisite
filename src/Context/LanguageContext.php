@@ -21,10 +21,15 @@ class LanguageContext implements ResetInterface
     private bool $explicit = false;
     private ?string $resolvedFor = null;
 
+    /**
+     * @param bool $apiFallback `translation_fallback`: API translations fall back to the fallback language
+     */
     public function __construct(
         private readonly SiteContext $siteContext,
         private readonly LanguageContextResolver $resolver,
         private readonly RequestStack $requestStack,
+        private readonly bool $apiFallback = true,
+        private readonly string $apiPrefix = 'api',
     ) {
     }
 
@@ -48,15 +53,17 @@ class LanguageContext implements ResetInterface
     }
 
     /**
-     * Ids of the languages to try for a translation, best first (current, then fallback).
+     * Ids of the languages to try for a translation, best first: the current one, then the
+     * fallback one, except on an API request without `translation_fallback`.
      *
      * @return list<int>
      */
     public function ids(): array
     {
         $ids = [];
+        $languages = $this->fallsBack() ? [$this->current(), $this->fallback()] : [$this->current()];
 
-        foreach ([$this->current(), $this->fallback()] as $language) {
+        foreach ($languages as $language) {
             $id = $language?->getId();
 
             if (null !== $id && !\in_array($id, $ids, true)) {
@@ -83,6 +90,28 @@ class LanguageContext implements ResetInterface
         $this->fallback = null;
         $this->explicit = false;
         $this->resolvedFor = null;
+    }
+
+    /**
+     * Whether the translations fall back to the fallback language: always, but on the API
+     * requests when `translation_fallback` is disabled.
+     */
+    public function fallsBack(): bool
+    {
+        if ($this->apiFallback) {
+            return true;
+        }
+
+        $request = $this->requestStack->getMainRequest();
+
+        if (!$request instanceof Request) {
+            return true;
+        }
+
+        $prefix = '/' . trim($this->apiPrefix, '/');
+        $path = $request->getPathInfo();
+
+        return $path !== $prefix && !str_starts_with($path, $prefix . '/');
     }
 
     private function resolve(): void

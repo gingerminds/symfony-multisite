@@ -20,6 +20,9 @@ gingerminds_multisite:
         cache_ttl: 300         # seconds; 0: until the next refresh
         log_channel: google    # Monolog channel of the Google API errors
         encryption_key: '%kernel.secret%'   # encrypts the service account credentials
+
+    translation_fallback: true # API only: a missing translation falls back to the site default
+                               # language (false: its fields are null), see Context.md
 ```
 
 ## Resources

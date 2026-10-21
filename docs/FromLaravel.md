@@ -28,7 +28,7 @@ translations. Same database schema. This page maps each concept; see also the co
 | `SiteContextedModelTrait` (global scope + `creating`) | `SiteContextedInterface` / `SiteContextedTrait` + `gingerminds_site` Doctrine filter + `prePersist` | |
 | `scopeForSite()` | `SiteQuery::restrict()` | |
 | `LanguageContextedModelTrait` (global scope) | `LanguageContextedInterface` / `LanguageContextedTrait` + `gingerminds_language` Doctrine filter | |
-| `TranslatableModelTrait` (`translations`, `currentTranslation`, `translation()`) | `TranslatableInterface` / `TranslatableTrait` (`getTranslations()`, `getCurrentTranslation()`, `getTranslation()`) | Mapping automatic. |
+| `TranslatableModelTrait` (`translations`, `currentTranslation`, `translation()`) | `TranslatableInterface` / `TranslatableTrait` (`getTranslations()`, `getCurrentTranslation()`, `getTranslation()`) | Mapping automatic. Fallback to the default language as Laravel, optional on the API (`translation_fallback`). |
 | `$translationModel` property | `getTranslationEntityClass()` | Default `<Entity>Translation`. |
 | `TranslationModelTrait` (`language()`, `isFor()`) | `TranslationInterface` / `TranslationTrait` | `<owner>_id` + `language_id`, as `getForeignKey()`. |
 | `HasTranslatedTitleAndSlugTrait` | same name | `getTitle()`, `getSlug()`, `getSwitchLang()`. |
