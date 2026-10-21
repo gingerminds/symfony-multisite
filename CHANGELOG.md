@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `translation_fallback` option (default `true`, as Laravel): `false` removes the fallback language
+  from the translations of the API requests (under `gingerminds_core.api.prefix`): a missing
+  translation gives `null` fields, the rows stay. The admin and the other requests always fall
+  back. `LanguageContext::fallsBack()`.
+
+## [1.1.0] - 2026-10-21
+
+### Added
+
 - Form include slots of the core 1.7 form layout on the site and language forms
   (`site_form_main|sidebar`, `language_form_main|sidebar`) and on the `make:gm:* --translated`
   form template, e.g. for the fields another bundle adds to `SiteType`.

@@ -56,5 +56,12 @@ return static function (DefinitionConfigurator $definition): void {
                     ->cannotBeEmpty()
                 ->end()
             ->end()
+        ->end()
+        ->booleanNode('translation_fallback')
+            ->info(
+                'API requests only: a missing translation falls back to the site default language (true, as Laravel) '
+                . 'or its fields are null (false). The admin always falls back.',
+            )
+            ->defaultTrue()
         ->end();
 };
