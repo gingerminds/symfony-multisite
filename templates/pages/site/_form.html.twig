@@ -1,6 +1,8 @@
 {% trans_default_domain 'GingermindsMultisite' %}
-<div class="row">
-    <div class="col-lg-8">
+{% embed '@GingermindsCore/crud/_form_layout.html.twig' %}
+    {% trans_default_domain 'GingermindsMultisite' %}
+
+    {% block main %}
         <div class="card shadow-sm mb-4">
             <div class="card-header py-3">
                 <h5 class="card-title mb-0"><i class="bi bi-globe2 me-1 text-primary"></i> {{ 'site.name_s'|trans }}</h5>
@@ -40,9 +42,9 @@
                 </div>
             </div>
         {% endif %}
-    </div>
+    {% endblock %}
 
-    <div class="col-lg-4">
+    {% block sidebar %}
         <div class="card shadow-sm mb-4">
             <div class="card-header py-3">
                 <h5 class="card-title mb-0"><i class="bi bi-translate me-1 text-primary"></i> {{ 'language.name_p'|trans }}</h5>
@@ -54,5 +56,5 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    {% endblock %}
+{% endembed %}
