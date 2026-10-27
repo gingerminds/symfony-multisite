@@ -41,23 +41,34 @@ class SiteRepository extends AbstractRepository
     }
 
     /**
-     * The first site whose URL contains the host (e.g. `brand.example.com` for `https://brand.example.com`).
+     * The first site whose URL host is exactly the host (e.g. `brand.example.com` for
+     * `https://brand.example.com/fr`, never for `https://shop.brand.example.com`).
      */
     public function findOneByHost(string $host): ?SiteInterface
     {
+        $host = strtolower($host);
+
         if ('' === $host) {
             return null;
         }
 
-        /** @var SiteInterface|null */
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.url LIKE :host')
+        /** @var list<SiteInterface> $candidates */
+        $candidates = $this->createQueryBuilder('s')
+            // Narrows to the URLs containing the host; the exact host match is checked below.
             // A host holds no `%`; no ESCAPE clause (its default differs between platforms).
+            ->andWhere('s.url LIKE :host')
             ->setParameter('host', '%' . $host . '%')
             ->orderBy('s.id', \SortDirection::Ascending)
-            ->setMaxResults(1)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
+
+        foreach ($candidates as $site) {
+            if ($host === strtolower((string) parse_url((string) $site->getUrl(), \PHP_URL_HOST))) {
+                return $site;
+            }
+        }
+
+        return null;
     }
 
     /**

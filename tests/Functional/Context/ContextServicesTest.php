@@ -11,6 +11,7 @@ use Gingerminds\MultisiteBundle\Cache\SiteLanguageCacheContextResolver;
 use Gingerminds\MultisiteBundle\Context\LanguageContext;
 use Gingerminds\MultisiteBundle\Context\SiteContext;
 use Gingerminds\MultisiteBundle\Doctrine\SiteQuery;
+use Gingerminds\MultisiteBundle\Entity\Site\Site;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\Article;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\ArticleTranslation;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\Document;
@@ -78,6 +79,19 @@ final class ContextServicesTest extends ApiTestCase
         $codes = array_map(static fn (Article $article): string => $article->getCode(), SiteQuery::restrict($qb, 'a', $beta)->getQuery()->getResult());
 
         self::assertSame(['b', 'shared'], $codes);
+    }
+
+    public function testTheSiteOfAHostIsAnExactHostMatch(): void
+    {
+        $shop = $this->fixtures->site('shop', url: 'https://shop.example.com');
+        $main = $this->fixtures->site('main', url: 'https://Example.com:8443/fr');
+
+        $sites = $this->entityManager()->getRepository(Site::class);
+
+        self::assertSame($main, $sites->findOneByHost('example.com'), 'A subdomain site never matches its parent host.');
+        self::assertSame($shop, $sites->findOneByHost('shop.example.com'));
+        self::assertNull($sites->findOneByHost('ample.com'), 'A host suffix is no match.');
+        self::assertNull($sites->findOneByHost(''));
     }
 
     public function testTranslationsLookupAndFallback(): void
