@@ -8,7 +8,7 @@ use Gingerminds\CoreBundle\Menu\AdminMenuProviderInterface;
 use Gingerminds\CoreBundle\Menu\CoreAdminMenuProvider;
 use Gingerminds\CoreBundle\Menu\MenuItem;
 use Gingerminds\CoreBundle\Resource\ResourceRegistry;
-use Gingerminds\CoreBundle\Security\Voter\AbstractResourceVoter;
+use Gingerminds\CoreBundle\Security\Voter\ResourceVoter;
 
 final readonly class MultisiteAdminMenuProvider implements AdminMenuProviderInterface
 {
@@ -36,7 +36,7 @@ final readonly class MultisiteAdminMenuProvider implements AdminMenuProviderInte
                 $resource->translationKey('name_p'),
                 $resource->route('index'),
                 icon: $icon,
-                permission: AbstractResourceVoter::VIEW,
+                permission: ResourceVoter::VIEW,
                 permissionSubject: $name,
                 translationDomain: $resource->translationDomain,
                 weight: $weight,

@@ -21,7 +21,6 @@ use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
         new GetCollection(normalizationContext: ['groups' => [BaseSite::GROUP_LIST], 'skip_null_values' => false]),
     ],
     paginationClientItemsPerPage: true,
-    provider: 'gingerminds_multisite.api.provider.site',
 )]
 class Site extends BaseSite
 {

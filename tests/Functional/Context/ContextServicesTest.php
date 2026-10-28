@@ -10,7 +10,6 @@ use Gingerminds\CoreBundle\Cache\CacheContextResolverInterface;
 use Gingerminds\MultisiteBundle\Cache\SiteLanguageCacheContextResolver;
 use Gingerminds\MultisiteBundle\Context\LanguageContext;
 use Gingerminds\MultisiteBundle\Context\SiteContext;
-use Gingerminds\MultisiteBundle\Doctrine\SiteQuery;
 use Gingerminds\MultisiteBundle\Entity\Site\Site;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\Article;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\ArticleTranslation;
@@ -60,25 +59,6 @@ final class ContextServicesTest extends ApiTestCase
 
         self::assertInstanceOf(SiteLanguageCacheContextResolver::class, $resolver);
         self::assertSame(['site' => $alpha->getId(), 'lang' => $fr->getId()], $resolver->resolve());
-    }
-
-    public function testSiteQueryRestrictsToASiteAndTheSharedRows(): void
-    {
-        $alpha = $this->fixtures->site('alpha');
-        $beta = $this->fixtures->site('beta');
-
-        foreach (['a' => $alpha, 'b' => $beta, 'shared' => null] as $code => $site) {
-            $article = new Article($code);
-            $article->setSite($site);
-            $this->entityManager()->persist($article);
-        }
-
-        $this->entityManager()->flush();
-
-        $qb = $this->entityManager()->getRepository(Article::class)->createQueryBuilder('a')->orderBy('a.id');
-        $codes = array_map(static fn (Article $article): string => $article->getCode(), SiteQuery::restrict($qb, 'a', $beta)->getQuery()->getResult());
-
-        self::assertSame(['b', 'shared'], $codes);
     }
 
     public function testTheSiteOfAHostIsAnExactHostMatch(): void

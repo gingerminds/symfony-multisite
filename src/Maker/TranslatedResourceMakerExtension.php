@@ -119,8 +119,8 @@ final class TranslatedResourceMakerExtension implements ResourceMakerExtensionIn
     {
         $template->addUse(TranslatableInterface::class, TranslatableTrait::class);
         $template->append('interfaces', 'TranslatableInterface');
+        // TranslatableTrait eager loads the translations (#[EagerLoad]).
         $template->append('traits', 'TranslatableTrait');
-        $template->append('eager_loads', '...self::getTranslationEagerLoads()');
     }
 
     private function configureForm(SkeletonTemplate $template, ResourceName $resource): void

@@ -17,6 +17,10 @@ return static function (DefinitionConfigurator $definition): void {
                     ->end()
                     ->scalarNode('controller')->defaultNull()->end()
                     ->scalarNode('form')->defaultNull()->end()
+                    ->booleanNode('api')
+                        ->info('false stops exposing the entity through the API (the bundle #[ApiResource], inherited by an entity overriding it).')
+                        ->defaultTrue()
+                    ->end()
                 ->end()
             ->end();
     };
@@ -24,7 +28,7 @@ return static function (DefinitionConfigurator $definition): void {
     $children = $definition->rootNode()->children();
 
     $resources = $children->arrayNode('resources')
-        ->info('Overridable resources of the bundle, registered as gingerminds_core resources.')
+        ->info('Overridable resources of the bundle, registered as gingerminds_core admin resources.')
         ->addDefaultsIfNotSet()
         ->children();
     $resource($resources, 'site');

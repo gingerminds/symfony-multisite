@@ -5,7 +5,7 @@ API Platform routes, under the API Platform prefix (`/api`). Fields are snake_ca
 ## `GET /api/sites`
 
 Public (front applications list the sites before any login), paginated
-(`itemsPerPage`, `page`), sortable (`sortBy=code&sort=asc`), searchable (`filters[search]`: code, url).
+(`itemsPerPage`, `page`), sortable (`order[code]=asc`, `order[url]=desc`), searchable (`search=`: code, url).
 
 ```json
 {
@@ -28,8 +28,8 @@ Public (front applications list the sites before any login), paginated
 - Cached by the core API response cache (24 hours, per site and language), invalidated by any
   site or language change.
 
-To expose more operations or fields, [override the entity](Configuration.md#overriding-the-site-entity)
-and restate its `#[ApiResource]`.
+An [overriding entity](Configuration.md#overriding-the-site-entity) inherits this resource; restate
+its `#[ApiResource]` to expose more operations or fields, `resources.site.api: false` to remove it.
 
 ## `GET /api/translations`
 
@@ -37,15 +37,16 @@ The front translations of the current site: see [Front translations](Translation
 
 ## Context headers
 
-Every API resource implementing one of these marker interfaces documents the matching header
-on all of its OpenAPI operations (core `HeaderParameterRegistry`), with no attribute to add:
+The API resources depending on the current site or language document the matching header on
+all of their OpenAPI operations (`ContextHeaderParametersResourceMetadataCollectionFactory`):
 
-| Interface | Header | Implemented / extended by |
-|---|---|---|
-| `SiteScopedInterface` | `X-Site-Id` (site id or code) | `SiteContextedInterface`, `/api/translations` |
-| `LanguageScopedInterface` | `Accept-Language` | `LanguageContextedInterface`, `TranslatableInterface`, `/api/translations` |
+| Header | Resources |
+|---|---|
+| `X-Site-Id` (site id or code) | `SiteContextedInterface` entities, `#[SiteScoped]` classes (`/api/translations`) |
+| `Accept-Language` | `TranslatableInterface` and `LanguageContextedInterface` entities, `#[LanguageScoped]` classes (`/api/translations`) |
 
-A DTO API resource whose response depends on the current site or language implements them too.
+A DTO API resource whose response depends on the current site or language gets the
+`#[SiteScoped]` / `#[LanguageScoped]` attribute (`Gingerminds\MultisiteBundle\Model`).
 `GET /api/sites` documents none: the sites list does not depend on the current site.
 
 The API is stateless: the admin site switcher choice (session) is ignored, even when Swagger UI

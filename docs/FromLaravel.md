@@ -19,14 +19,13 @@ translations. Same database schema. This page maps each concept; see also the co
 | Migrations shipped by the package | `doctrine:migrations:diff` in the project | Same schema. |
 | `SiteController`, `LanguageController`, Blade views | Core `AbstractCrudController` (empty controllers), Twig templates | Administration menu section. |
 | `SiteRequest`, `LanguageRequest` | `SiteType`, `LanguageType` + validator constraints | snake_case field names. |
-| `SitePolicy`, `LanguagePolicy` | `SiteVoter`, `LanguageVoter` | `view\|edit\|delete sites\|languages`. |
+| `SitePolicy`, `LanguagePolicy` | core `ResourceVoter` | `view\|edit\|delete sites\|languages`. |
 | `PermissionSeeder` | `gingerminds:permissions:sync` | Also creates `manage translations`. |
 | `SiteContext`, `LanguageContext` (`scoped`) | same names, reset per request | `id()` / `has()` exist (they were called but missing in Laravel). |
 | `SiteContextResolver`, `LanguageContextResolver` | same names | |
-| `SiteLanguageCacheContextResolver` (rebinding) | same name, replaces `gingerminds_core.cache.context_resolver` | |
-| `ApiHeaderParameterRegistry::register(trait)` | `SiteScopedInterface` / `LanguageScopedInterface` markers | Extended by the context interfaces. |
+| `SiteLanguageCacheContextResolver` (rebinding) | same name, decorates `gingerminds_core.cache.context_resolver` | |
+| `ApiHeaderParameterRegistry::register(trait)` | `#[SiteScoped]` / `#[LanguageScoped]` attributes | Implied by the context interfaces. |
 | `SiteContextedModelTrait` (global scope + `creating`) | `SiteContextedInterface` / `SiteContextedTrait` + `gingerminds_site` Doctrine filter + `prePersist` | |
-| `scopeForSite()` | `SiteQuery::restrict()` | |
 | `LanguageContextedModelTrait` (global scope) | `LanguageContextedInterface` / `LanguageContextedTrait` + `gingerminds_language` Doctrine filter | |
 | `TranslatableModelTrait` (`translations`, `currentTranslation`, `translation()`) | `TranslatableInterface` / `TranslatableTrait` (`getTranslations()`, `getCurrentTranslation()`, `getTranslation()`) | Mapping automatic. Fallback to the default language as Laravel, optional on the API (`translation_fallback`). |
 | `$translationModel` property | `getTranslationEntityClass()` | Default `<Entity>Translation`. |
@@ -36,7 +35,7 @@ translations. Same database schema. This page maps each concept; see also the co
 | `AbstractTranslatableResourceRequest`, `BuildsTranslationAttributesTrait` | `TranslationsType` | Errors shown in the language tab. |
 | `HandlesSlugUniquenessTrait` | `#[UniqueTranslationSlug]` | |
 | `uniqueCodeRule()` | `#[UniqueEntity(fields: ['site', 'code'])]` | |
-| `SiteProvider`, `LanguageProvider`, `SiteStateProcessor` | core `ResourceProvider` | |
+| `SiteProvider`, `LanguageProvider`, `SiteStateProcessor` | API Platform Doctrine provider | |
 | `Translation` model, `TranslationProvider` | `ApiResource\Translation`, `TranslationProvider` | `/api/translations`, same output. |
 | `GoogleDriveTranslationClient` | `GoogleDriveTranslationSource` (`TranslationSourceInterface`) | Replaceable. |
 | `TranslationService`, `TranslationFileParser`, `TranslationSourceException` | same names | |
@@ -55,8 +54,8 @@ translations. Same database schema. This page maps each concept; see also the co
   first site) and no Doctrine filter; set it with `SiteContext::setSite()`.
 - **No language context** (no site): the language filter does not restrict (Laravel read the
   `Accept-Language` header).
-- **Current translation** chosen in PHP among the loaded translations (eager loaded with
-  `getTranslationEagerLoads()`) instead of an SQL `ORDER BY CASE`.
+- **Current translation** chosen in PHP among the loaded translations (eager loaded by
+  `TranslatableTrait`) instead of an SQL `ORDER BY CASE`.
 - **Optional translation emptied** in the form is deleted (Laravel kept it with empty values).
 - **Language ISO codes** are stored lowercase.
 - **Site `code`** uniqueness is validated by the form (database constraint only in Laravel).

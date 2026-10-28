@@ -54,9 +54,9 @@ final class TranslatedMakerTest extends KernelTestCase
         $output = $this->make(MakeResource::class, ['--translated' => true]);
 
         $entity = $this->file('src/Entity/Catalog/Product.php');
-        self::assertStringContainsString('implements ResourceInterface, SearchableInterface, SortableInterface, TimestampableInterface, TranslatableInterface, EagerLoadableInterface, \Stringable', $entity);
+        self::assertStringContainsString('implements ResourceInterface, TimestampableInterface, TranslatableInterface, \Stringable', $entity);
         self::assertStringContainsString('    use TranslatableTrait;', $entity);
-        self::assertStringContainsString('return [...self::getTranslationEagerLoads()];', $entity);
+        self::assertStringNotContainsString('getTranslationEagerLoads', $entity);
 
         $translation = $this->file('src/Entity/Catalog/ProductTranslation.php');
         self::assertStringContainsString("#[ORM\\Table(name: 'product_translations')]", $translation);

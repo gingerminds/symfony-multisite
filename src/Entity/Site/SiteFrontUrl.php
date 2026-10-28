@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Gingerminds\MultisiteBundle\Entity\Site;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gingerminds\CoreBundle\Model\CacheCascadeInterface;
+use Gingerminds\CoreBundle\Model\CacheCascade;
 use Gingerminds\CoreBundle\Model\TimestampableInterface;
 use Gingerminds\CoreBundle\Model\Trait\TimestampableTrait;
 
@@ -15,7 +15,8 @@ use Gingerminds\CoreBundle\Model\Trait\TimestampableTrait;
 #[ORM\Entity]
 #[ORM\Table(name: 'site_front_urls')]
 #[ORM\UniqueConstraint(name: 'site_front_urls_unique', columns: ['site_id', 'url'])]
-class SiteFrontUrl implements TimestampableInterface, CacheCascadeInterface
+#[CacheCascade(['site'])]
+class SiteFrontUrl implements TimestampableInterface
 {
     use TimestampableTrait;
 
@@ -46,10 +47,5 @@ class SiteFrontUrl implements TimestampableInterface, CacheCascadeInterface
     public function getUrl(): string
     {
         return $this->url;
-    }
-
-    public static function getCascadeCacheKeys(): array
-    {
-        return ['site'];
     }
 }

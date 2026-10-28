@@ -21,6 +21,7 @@ return static function (ContainerConfigurator $container): void {
             service('gingerminds_core.resource_registry'),
             service('translator'),
             param('gingerminds_multisite.translation.enabled'),
+            service('gingerminds_multisite.security.credentials_encryptor'),
         ])
         ->tag('form.type');
     $services->set('gingerminds_multisite.form.type.language', LanguageType::class)

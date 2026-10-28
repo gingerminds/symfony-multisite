@@ -41,8 +41,7 @@ class Event implements SiteContextedInterface
   rows of the current site and the shared ones — and nothing without current site (Laravel global
   scope). It also applies to the relations and the admin lists (site switcher).
 - A new entity without site gets the current one on persist.
-- Cross-site query: `$entityManager->getFilters()->disable(SiteFilter::NAME)`; explicit scope:
-  `SiteQuery::restrict($queryBuilder, 'e', $site)` (`e.site = :site OR e.site IS NULL`).
+- Cross-site query: `$entityManager->getFilters()->disable(SiteFilter::NAME)`.
 - Not deleted with its site:
   `#[ORM\AssociationOverrides([new ORM\AssociationOverride(name: 'site', joinColumns: [new ORM\JoinColumn(name: 'site_id', onDelete: 'SET NULL')])])]`.
 
@@ -71,7 +70,6 @@ language (no restriction without current language). Another join table, e.g. the
 The language dependent fields live in a translation entity, one row per language:
 
 ```php
-use Gingerminds\CoreBundle\Model\EagerLoadableInterface;
 use Gingerminds\MultisiteBundle\Model\HasTranslatedTitleAndSlugTrait;
 use Gingerminds\MultisiteBundle\Model\TranslatableInterface;
 use Gingerminds\MultisiteBundle\Model\TranslatableTrait;
@@ -81,15 +79,10 @@ use Gingerminds\MultisiteBundle\Validator\UniqueTranslationSlug;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'products')]
-class Product implements TranslatableInterface, EagerLoadableInterface
+class Product implements TranslatableInterface
 {
     use HasTranslatedTitleAndSlugTrait; // getTitle(), getSlug(), getSwitchLang()
-    use TranslatableTrait;
-
-    public static function getEagerLoads(): array
-    {
-        return [...self::getTranslationEagerLoads()]; // translations + their language, no query per row
-    }
+    use TranslatableTrait; // translations + their language eager loaded (#[EagerLoad]), no query per row
 }
 
 #[ORM\Entity]
@@ -124,6 +117,5 @@ class ProductTranslation implements TranslationInterface
 
 ## API documentation
 
-Every API resource implementing `SiteScopedInterface` (site contexted entities) or
-`LanguageScopedInterface` (language contexted and translatable entities) documents the
-`X-Site-Id` / `Accept-Language` headers: see [API](API.md#context-headers).
+Every API resource of a site contexted entity, or of a language contexted or translatable one,
+documents the `X-Site-Id` / `Accept-Language` headers: see [API](API.md#context-headers).

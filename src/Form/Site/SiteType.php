@@ -8,6 +8,7 @@ use Gingerminds\CoreBundle\Resource\ResourceRegistry;
 use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
 use Gingerminds\MultisiteBundle\Form\DataTransformer\LinesToArrayTransformer;
+use Gingerminds\MultisiteBundle\Security\CredentialsEncryptor;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -32,6 +33,7 @@ class SiteType extends AbstractType
         protected readonly ResourceRegistry $resources,
         protected readonly TranslatorInterface $translator,
         protected readonly bool $translationEnabled,
+        protected readonly CredentialsEncryptor $encryptor,
     ) {
     }
 
@@ -89,8 +91,10 @@ class SiteType extends AbstractType
                 ->add(self::CREDENTIALS_FIELD, TextareaType::class, [
                     'label' => 'site.field.google_service_account_credentials',
                     'help' => 'site.help.google_service_account_credentials',
-                    'mapped' => false,
                     'required' => false,
+                    // Write only: never shown back, left unchanged when empty, stored encrypted.
+                    'getter' => static fn (): ?string => null,
+                    'setter' => $this->setCredentials(...),
                     'size' => 'xl',
                     'attr' => ['rows' => 6, 'placeholder' => '{"type": "service_account", "client_email": "...", "private_key": "..."}'],
                     'constraints' => [new Assert\Json()],
@@ -117,6 +121,18 @@ class SiteType extends AbstractType
                 $this->translator->trans('site.error.default_language_not_selected', [], 'GingermindsMultisite'),
             ));
         });
+    }
+
+    /**
+     * Mapped before the validation: an invalid JSON is left to the Json constraint.
+     */
+    protected function setCredentials(SiteInterface $site, ?string $credentials): void
+    {
+        $decoded = null !== $credentials && '' !== trim($credentials) ? json_decode($credentials, true) : null;
+
+        if (\is_array($decoded)) {
+            $site->setEncryptedGoogleCredentials($this->encryptor->encrypt($decoded));
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

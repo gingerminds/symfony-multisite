@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gingerminds\MultisiteBundle\Entity\Site;
 
 use Doctrine\Common\Collections\Collection;
+use Gingerminds\CoreBundle\Model\EagerLoad;
 use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
@@ -17,6 +18,7 @@ trait SiteLanguagesTrait
     /**
      * @var Collection<int, SiteLanguage>
      */
+    #[EagerLoad(paths: ['language'])]
     protected Collection $siteLanguages;
 
     public function getSiteLanguages(): Collection

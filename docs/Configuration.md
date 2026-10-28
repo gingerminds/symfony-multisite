@@ -10,6 +10,7 @@ gingerminds_multisite:
             entity: ~          # project entity extending BaseSite (null: the bundle one)
             controller: ~      # extends the bundle SiteController
             form: ~            # extends the bundle SiteType
+            api: true          # false: no GET /api/sites (inherited by an overriding entity)
         language:
             entity: ~          # extends BaseLanguage
             controller: ~      # extends LanguageController
@@ -27,9 +28,9 @@ gingerminds_multisite:
 
 ## Resources
 
-`site` and `language` are registered as `gingerminds_core` resources (prepended: the project
-`gingerminds_core.resources.site|language` configuration still overrides any key, e.g.
-`redirect_after_edit`):
+`site` and `language` are registered as `gingerminds_core` resources (core
+`AbstractResourceBundle`, below the project `gingerminds_core.resources.site|language`
+configuration, which still overrides any key, e.g. `redirect_after_edit`):
 
 | Key | `site` | `language` |
 |---|---|---|
@@ -44,26 +45,19 @@ entries: users 0 … permissions 30).
 
 ## Overriding the `Site` entity
 
-As the core entities: extend the mapped superclass, restate the class-level attributes, declare it.
+As the core entities: extend the mapped superclass, restate the Doctrine class-level attributes, declare it.
+The bundle `#[ApiResource]` (`GET /api/sites`) is inherited: restate one only to change it.
 
 ```php
 // src/Entity/Site/Site.php
 namespace App\Entity\Site;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\GetCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gingerminds\MultisiteBundle\Entity\Site\BaseSite;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
 
 #[ORM\Entity(repositoryClass: SiteRepository::class)]
 #[ORM\Table(name: 'sites')]
-#[ApiResource(
-    shortName: 'Site',
-    operations: [new GetCollection(normalizationContext: ['groups' => [BaseSite::GROUP_LIST], 'skip_null_values' => false])],
-    paginationClientItemsPerPage: true,
-    provider: 'gingerminds_multisite.api.provider.site',
-)]
 class Site extends BaseSite
 {
     #[ORM\Column(length: 30, nullable: true)]
@@ -78,8 +72,8 @@ gingerminds_multisite:
             entity: App\Entity\Site\Site
 ```
 
-The bundle then excludes its own `Site` from the Doctrine mapping and the API resources,
-resolves `SiteInterface` to your class (every relation targets it) and uses it in forms, voters,
+The bundle then excludes its own `Site` from the Doctrine mapping and gives its API resource to
+yours, resolves `SiteInterface` to your class (every relation targets it) and uses it in forms, voters,
 repositories and the context. The `site_language` / `site_front_urls` relations are mapped on your
 class automatically (`SiteMetadataListener`: Doctrine forbids inverse sides on a mapped superclass).
 `Language` works the same way (`BaseLanguage`, `LanguageInterface`).

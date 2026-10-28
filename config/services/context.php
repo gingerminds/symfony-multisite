@@ -9,7 +9,6 @@ use Gingerminds\MultisiteBundle\Context\LanguageContext;
 use Gingerminds\MultisiteBundle\Context\LanguageContextResolver;
 use Gingerminds\MultisiteBundle\Context\SiteContext;
 use Gingerminds\MultisiteBundle\Context\SiteContextResolver;
-use Gingerminds\MultisiteBundle\DependencyInjection\Compiler\CacheContextResolverPass;
 use Gingerminds\MultisiteBundle\EventListener\ContextFilterListener;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -43,8 +42,9 @@ return static function (ContainerConfigurator $container): void {
         ->tag('kernel.reset', ['method' => 'reset']);
     $services->alias(LanguageContext::class, 'gingerminds_multisite.context.language');
 
-    // Becomes `gingerminds_core.cache.context_resolver` (CacheContextResolverPass).
-    $services->set(CacheContextResolverPass::RESOLVER, SiteLanguageCacheContextResolver::class)
+    // Replaces the core no-op one: the cached API responses vary with the site and language.
+    $services->set('gingerminds_multisite.cache.context_resolver', SiteLanguageCacheContextResolver::class)
+        ->decorate('gingerminds_core.cache.context_resolver')
         ->args([service('gingerminds_multisite.context.site'), service('gingerminds_multisite.context.language')]);
 
     $services->set('gingerminds_multisite.context.filter_listener', ContextFilterListener::class)

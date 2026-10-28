@@ -6,10 +6,10 @@ namespace Gingerminds\MultisiteBundle\Entity\Language;
 
 use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
-use Gingerminds\CoreBundle\Model\CacheableResourceInterface;
-use Gingerminds\CoreBundle\Model\CacheCascadeInterface;
-use Gingerminds\CoreBundle\Model\SearchableInterface;
-use Gingerminds\CoreBundle\Model\SortableInterface;
+use Gingerminds\CoreBundle\Model\Cacheable;
+use Gingerminds\CoreBundle\Model\CacheCascade;
+use Gingerminds\CoreBundle\Model\Searchable;
+use Gingerminds\CoreBundle\Model\Sortable;
 use Gingerminds\CoreBundle\Model\TimestampableInterface;
 use Gingerminds\CoreBundle\Model\Trait\TimestampableTrait;
 use Gingerminds\MultisiteBundle\Entity\Site\BaseSite;
@@ -19,7 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\MappedSuperclass]
 #[UniqueEntity(fields: ['iso'])]
-abstract class BaseLanguage implements LanguageInterface, TimestampableInterface, SortableInterface, SearchableInterface, CacheableResourceInterface, CacheCascadeInterface
+#[Cacheable(key: 'language', ttl: 86400)]
+#[CacheCascade(['site'])]
+abstract class BaseLanguage implements LanguageInterface, TimestampableInterface
 {
     use TimestampableTrait;
 
@@ -37,12 +39,16 @@ abstract class BaseLanguage implements LanguageInterface, TimestampableInterface
     #[Assert\NotBlank]
     #[Assert\Length(max: 7)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ, BaseSite::GROUP_LIST, BaseSite::GROUP_READ])]
+    #[Sortable]
+    #[Searchable]
     protected ?string $iso = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ, BaseSite::GROUP_LIST, BaseSite::GROUP_READ])]
+    #[Sortable]
+    #[Searchable]
     protected ?string $label = null;
 
     public function getId(): ?int
@@ -68,26 +74,6 @@ abstract class BaseLanguage implements LanguageInterface, TimestampableInterface
     public function setLabel(string $label): void
     {
         $this->label = $label;
-    }
-
-    public static function getSearchableFields(): array
-    {
-        return ['iso', 'label'];
-    }
-
-    public static function getCacheKey(): string
-    {
-        return 'language';
-    }
-
-    public static function getCacheTtl(): int
-    {
-        return 86400;
-    }
-
-    public static function getCascadeCacheKeys(): array
-    {
-        return ['site'];
     }
 
     public function __toString(): string

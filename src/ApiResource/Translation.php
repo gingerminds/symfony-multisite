@@ -7,8 +7,8 @@ namespace Gingerminds\MultisiteBundle\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
-use Gingerminds\MultisiteBundle\Model\LanguageScopedInterface;
-use Gingerminds\MultisiteBundle\Model\SiteScopedInterface;
+use Gingerminds\MultisiteBundle\Model\LanguageScoped;
+use Gingerminds\MultisiteBundle\Model\SiteScoped;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 /**
@@ -27,7 +27,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
         ),
     ],
 )]
-final readonly class Translation implements SiteScopedInterface, LanguageScopedInterface
+#[SiteScoped]
+#[LanguageScoped]
+final readonly class Translation
 {
     public const string GROUP_READ = 'translation:read';
 

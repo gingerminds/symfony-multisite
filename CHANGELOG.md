@@ -6,6 +6,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **BC break** — requires `gingerminds/symfony-core` ^1.10:
+  - the bundle extends the core `AbstractResourceBundle`: the site and language admin resources are
+    registered on load (below the project `gingerminds_core.resources`), `resources.*.api: false`
+    removes an entity from the API;
+  - an entity overriding `Site` inherits its `#[ApiResource]` (no copy to keep in sync);
+  - `#[Cacheable]`, `#[CacheCascade]`, `#[Sortable]`, `#[Searchable]` and `#[EagerLoad]` on the
+    entities instead of the removed core interfaces; `TranslatableTrait` eager loads the
+    translations and their language (`getTranslationEagerLoads()` removed, `make:gm:* --translated`
+    no longer generates `getEagerLoads()`);
+  - `GET /api/sites`: API Platform Doctrine provider and core list contract (`order[code]=asc`,
+    `search=`);
+  - `#[SiteScoped]` / `#[LanguageScoped]` attributes instead of `SiteScopedInterface` /
+    `LanguageScopedInterface`; the context headers are documented by the bundle's own metadata
+    factory (the core `HeaderParameterRegistry` is gone);
+  - the cache context resolver decorates `gingerminds_core.cache.context_resolver` (no compiler pass);
+  - site and language permissions checked by the core `ResourceVoter` (`SiteVoter` / `LanguageVoter`
+    removed), `SiteController` / `LanguageController` follow the core `AbstractCrudController`
+    (no `CrudContext`);
+  - the Google credentials are encrypted by `SiteType` (`setter` of the field) instead of
+    `SiteRepository::beforeSave()`.
+
+### Removed
+
+- `SiteQuery` (`getFilters()->disable(SiteFilter::NAME)` and a plain condition instead).
+
 ### Fixed
 
 - No `tabindex` on the tab panes of the translations form theme and of the `make:gm:* --translated`
