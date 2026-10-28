@@ -49,8 +49,8 @@ as `gingerminds/laravel-multisite`.
 bin/console gingerminds:permissions:sync
 ```
 
-Creates `view|edit|delete sites`, `view|edit|delete languages` and `manage translations` (run it
-on every deploy, it is idempotent). Then grant them to the roles in the admin.
+Creates `view|edit|delete sites`, `view|edit|delete languages`, `manage translations` and
+`assign sites` (run it on every deploy, it is idempotent). Then grant them to the roles in the admin.
 
 ## 5. Optional: front translations from Google Drive
 
@@ -83,7 +83,34 @@ See [Front translations](Translations.md).
 }
 ```
 
-## 6. Admin
+## 6. Optional: users restricted to some sites
+
+Without it every user works on every site. To give some users access to some sites only, add the
+interface and the trait to the project user (the core `User` overridden as usual):
+
+```php
+// src/Entity/User/User.php
+use Gingerminds\MultisiteBundle\Model\SiteRestrictedUserInterface;
+use Gingerminds\MultisiteBundle\Model\UserSitesTrait;
+
+class User extends BaseUser implements SiteRestrictedUserInterface
+{
+    use UserSitesTrait;
+}
+```
+
+Then generate and run the migration (`users.all_sites`, true by default: the existing users keep
+every site, and the `user_sites` table):
+
+```bash
+bin/console doctrine:migrations:diff
+bin/console doctrine:migrations:migrate
+```
+
+Grant `assign sites` to the roles allowed to edit the sites of the users. See
+[Site access](SiteAccess.md) for the rules.
+
+## 7. Admin
 
 Log in to `/admin`: **Administration › Sites / Languages**. Create the languages, then the sites
 with their languages and default language. As soon as there are two sites, the sidebar shows a
@@ -93,3 +120,4 @@ site switcher (above the user menu) scoping the admin lists to the chosen site.
 
 - [Configuration](Configuration.md)
 - [Coming from laravel-multisite](FromLaravel.md)
+- [Site access](SiteAccess.md)

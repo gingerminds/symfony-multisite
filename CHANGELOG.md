@@ -6,9 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Site access per user, opt-in: `SiteRestrictedUserInterface` / `UserSitesTrait` on the project
+  user (`all_sites`, `user_sites`). The current site, the site switcher, the site list and edit
+  page are limited to the user's sites (an `X-Site-Id` naming another site is a 403); the **Sites**
+  card of the user form for a super admin or the holders of the new `assign sites` permission;
+  `sites` filter of the user list and API. See
+  `docs/SiteAccess.md`.
+
 ### Changed
 
-- **BC break** — requires `gingerminds/symfony-core` ^1.10:
+- **BC break** — requires `gingerminds/symfony-core` ^1.10.1:
   - the bundle extends the core `AbstractResourceBundle`: the site and language admin resources are
     registered on load (below the project `gingerminds_core.resources`), `resources.*.api: false`
     removes an entity from the API;

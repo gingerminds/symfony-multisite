@@ -7,6 +7,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 use Gingerminds\MultisiteBundle\Form\Language\LanguageType;
 use Gingerminds\MultisiteBundle\Form\Site\SiteType;
 use Gingerminds\MultisiteBundle\Form\Type\TranslationsType;
+use Gingerminds\MultisiteBundle\Form\User\UserSitesTypeExtension;
 use Gingerminds\MultisiteBundle\Repository\Language\LanguageRepository;
 use Gingerminds\MultisiteBundle\Validator\UniqueTranslationSlugValidator;
 
@@ -24,6 +25,13 @@ return static function (ContainerConfigurator $container): void {
             service('gingerminds_multisite.security.credentials_encryptor'),
         ])
         ->tag('form.type');
+    $services->set('gingerminds_multisite.form.extension.user_sites', UserSitesTypeExtension::class)
+        ->args([
+            service('gingerminds_multisite.security.site_access'),
+            service('security.helper'),
+            service('gingerminds_core.resource_registry'),
+        ])
+        ->tag('form.type_extension');
     $services->set('gingerminds_multisite.form.type.language', LanguageType::class)
         ->args([service('gingerminds_core.resource_registry')])
         ->tag('form.type');

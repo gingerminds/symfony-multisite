@@ -16,6 +16,7 @@ use Gingerminds\MultisiteBundle\Entity\Site\Site;
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
 use Gingerminds\MultisiteBundle\Form\Language\LanguageType;
 use Gingerminds\MultisiteBundle\Form\Site\SiteType;
+use Gingerminds\MultisiteBundle\Security\SiteAccess;
 use Symfony\Bundle\MakerBundle\MakerBundle;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -134,9 +135,10 @@ final class GingermindsMultisiteBundle extends AbstractResourceBundle
 
         // Prepended: the project configuration still overrides any key.
         $builder->prependExtensionConfig('gingerminds_core', [
-            'permissions' => [TranslationRefreshController::PERMISSION],
+            'permissions' => [TranslationRefreshController::PERMISSION, SiteAccess::ASSIGN_PERMISSION],
             'admin_includes' => [
                 'sidebar_bottom' => ['@GingermindsMultisite/admin/_site_switcher.html.twig'],
+                'user_form_sidebar' => ['@GingermindsMultisite/admin/_user_sites.html.twig'],
             ],
         ]);
     }

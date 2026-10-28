@@ -20,7 +20,7 @@ return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
     $services->set('gingerminds_multisite.context.site_resolver', SiteContextResolver::class)
-        ->args([service(SiteRepository::class)]);
+        ->args([service(SiteRepository::class), service('gingerminds_multisite.security.site_access')]);
     $services->alias(SiteContextResolver::class, 'gingerminds_multisite.context.site_resolver');
 
     $services->set('gingerminds_multisite.context.site', SiteContext::class)
@@ -52,6 +52,7 @@ return static function (ContainerConfigurator $container): void {
             service('doctrine'),
             service('gingerminds_multisite.context.site'),
             service('gingerminds_multisite.context.language'),
+            service('gingerminds_multisite.security.site_access'),
         ])
         // After the firewall (8), before the core API response cache (5) and API Platform (4).
         ->tag('kernel.event_listener', ['event' => KernelEvents::REQUEST, 'method' => 'onKernelRequest', 'priority' => 6]);

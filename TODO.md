@@ -39,3 +39,11 @@ et la déchiffre au chargement, sans type ni service maison.
 - [symfony/symfony#66806 : attribut `Encrypted`](https://github.com/symfony/symfony/pull/66806)
 - [symfony/symfony#66766 : types DBAL chiffrés déclarés par la configuration du bundle](https://github.com/symfony/symfony/pull/66766)
 - [symfony/doctrine-orm-key-management](https://github.com/symfony/doctrine-orm-key-management)
+
+## Accès aux sites : suites possibles
+
+- [ ] Attribuer les sites via l'API (`POST` / `PATCH /api/users`) : aujourd'hui, seulement par le
+      formulaire admin.
+- [ ] Filtrage imposé de la liste des utilisateurs (un admin limité ne voit que les utilisateurs
+      partageant un de ses sites) : demande un point d'extension du core sur les listes et le
+      `ResourceVoter` plutôt qu'une surcharge de ses services dans le multisite.

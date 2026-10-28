@@ -39,8 +39,11 @@ final class BundleConfigurationTest extends TestCase
 
         $core = $this->merged($container, 'gingerminds_core');
         self::assertArrayNotHasKey('resources', $core, 'Registered on load (ResourceRegistryPass), below the project configuration.');
-        self::assertSame(['manage translations'], $core['permissions']);
-        self::assertSame(['sidebar_bottom' => ['@GingermindsMultisite/admin/_site_switcher.html.twig']], $core['admin_includes']);
+        self::assertSame(['manage translations', 'assign sites'], $core['permissions']);
+        self::assertSame([
+            'sidebar_bottom' => ['@GingermindsMultisite/admin/_site_switcher.html.twig'],
+            'user_form_sidebar' => ['@GingermindsMultisite/admin/_user_sites.html.twig'],
+        ], $core['admin_includes']);
         self::assertArrayHasKey('gingerminds_multisite.translation_cache', $this->merged($container, 'framework')['cache']['pools']);
     }
 

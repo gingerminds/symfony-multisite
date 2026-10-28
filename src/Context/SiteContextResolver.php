@@ -6,7 +6,9 @@ namespace Gingerminds\MultisiteBundle\Context;
 
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
+use Gingerminds\MultisiteBundle\Security\SiteAccess;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * The site of a request, in this order:
@@ -15,6 +17,9 @@ use Symfony\Component\HttpFoundation\Request;
  *  2. the `X-Site-Id` header (site id, or code);
  *  3. the request host, contained in a site URL;
  *  4. the first site.
+ *
+ * Only among the sites of the current user (SiteAccess): another one is skipped, except the
+ * site the `X-Site-Id` header asks for explicitly (403).
  */
 class SiteContextResolver
 {
@@ -23,15 +28,35 @@ class SiteContextResolver
 
     public function __construct(
         protected readonly SiteRepository $sites,
+        protected readonly SiteAccess $access,
     ) {
     }
 
     public function resolve(Request $request): ?SiteInterface
     {
-        return $this->fromSession($request)
-            ?? $this->fromHeader($request)
-            ?? $this->sites->findOneByHost($request->getHost())
+        return $this->allowed($this->fromSession($request))
+            ?? $this->fromAllowedHeader($request)
+            ?? $this->allowed($this->sites->findOneByHost($request->getHost()))
             ?? $this->sites->findFirst();
+    }
+
+    /**
+     * @throws AccessDeniedHttpException when the header names a site the user may not access
+     */
+    protected function fromAllowedHeader(Request $request): ?SiteInterface
+    {
+        $site = $this->fromHeader($request);
+
+        if ($site instanceof SiteInterface && !$this->access->allows($site)) {
+            throw new AccessDeniedHttpException(\sprintf('The site of the %s header is not allowed to the current user.', self::HEADER));
+        }
+
+        return $site;
+    }
+
+    protected function allowed(?SiteInterface $site): ?SiteInterface
+    {
+        return $site instanceof SiteInterface && $this->access->allows($site) ? $site : null;
     }
 
     protected function fromSession(Request $request): ?SiteInterface

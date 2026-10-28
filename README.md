@@ -39,6 +39,7 @@ Then follow [Installation](docs/Installation.md) (bundle, routes, database, perm
 - [Context](docs/Context.md) — current site and language, admin site switcher, cache.
 - [Entities & traits](docs/Entities.md) — sites, languages, site / language scoped and translatable entities.
 - [Forms](docs/Forms.md) — translations tabs, unique slugs.
+- [Site access](docs/SiteAccess.md) — users restricted to some sites, `assign sites`.
 
 **API**
 

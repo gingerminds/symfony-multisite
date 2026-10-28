@@ -106,7 +106,11 @@ symfonycasts_sass:
     sass_options:
         load_path: ['%kernel.project_dir%/../../vendor/twbs']
 
-# SiteAdminTest: a template included in the site form sidebar.
 gingerminds_core:
+    # SiteAccessTest: a user restricted to some sites.
+    resources:
+        user:
+            entity: Gingerminds\MultisiteBundle\Tests\Application\Entity\User
+    # SiteAdminTest: a template included in the site form sidebar.
     admin_includes:
         site_form_sidebar: ['site/_form_sidebar.html.twig']

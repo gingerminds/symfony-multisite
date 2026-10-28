@@ -10,12 +10,14 @@ use Gingerminds\MultisiteBundle\Context\LanguageContext;
 use Gingerminds\MultisiteBundle\Context\SiteContext;
 use Gingerminds\MultisiteBundle\Doctrine\Filter\LanguageFilter;
 use Gingerminds\MultisiteBundle\Doctrine\Filter\SiteFilter;
+use Gingerminds\MultisiteBundle\Security\SiteAccess;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Enables the site and language Doctrine filters on the main request (Laravel
  * global scopes), with the current site and language. Commands and message
- * handlers are not filtered.
+ * handlers are not filtered. A user allowed no site (SiteAccess) is denied.
  */
 final readonly class ContextFilterListener
 {
@@ -23,6 +25,7 @@ final readonly class ContextFilterListener
         private ManagerRegistry $doctrine,
         private SiteContext $siteContext,
         private LanguageContext $languageContext,
+        private SiteAccess $access,
     ) {
     }
 
@@ -33,6 +36,11 @@ final readonly class ContextFilterListener
         }
 
         $siteId = $this->siteContext->id();
+
+        if (null === $siteId && $this->access->isRestricted()) {
+            throw new AccessDeniedHttpException('No site is allowed to the current user.');
+        }
+
         $languageId = $this->languageContext->current()?->getId();
 
         foreach ($this->doctrine->getManagers() as $manager) {

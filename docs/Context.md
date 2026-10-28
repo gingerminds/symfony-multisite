@@ -37,6 +37,8 @@ Both are resolved once per main request, and reset between requests (`kernel.res
 3. a site whose `url` contains the request host;
 4. the first site.
 
+Only among the sites of the current user: see [Site access](SiteAccess.md).
+
 ## `LanguageContext`
 
 Resolved on the current site (no site: `null` for both):

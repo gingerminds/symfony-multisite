@@ -39,7 +39,7 @@ final class MultisiteExtension extends AbstractExtension implements ResetInterfa
     }
 
     /**
-     * The sites of the admin site switcher: none when there is only one site.
+     * The sites of the admin site switcher, those of the current user: none when there is only one.
      *
      * @return list<SiteInterface>
      */

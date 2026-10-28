@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Gingerminds\MultisiteBundle\Repository\Site;
 
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Gingerminds\CoreBundle\Repository\AbstractRepository;
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
+use Gingerminds\MultisiteBundle\Security\SiteAccess;
 
 /**
  * @extends AbstractRepository<SiteInterface>
@@ -16,22 +18,36 @@ class SiteRepository extends AbstractRepository
     /**
      * @param class-string<SiteInterface> $entityClass
      */
-    public function __construct(ManagerRegistry $registry, string $entityClass)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        string $entityClass,
+        private readonly SiteAccess $access,
+    ) {
         parent::__construct($registry, $entityClass);
     }
 
     /**
+     * The sites of the current user (SiteAccess).
+     *
      * @return list<SiteInterface>
      */
     public function findAllOrdered(): array
     {
-        return $this->findBy([], ['code' => 'ASC']);
+        /** @var list<SiteInterface> */
+        return $this->createScopedQueryBuilder()->orderBy(self::ALIAS . '.code', \SortDirection::Ascending)->getQuery()->getResult();
     }
 
+    /**
+     * The first site of the current user (SiteAccess).
+     */
     public function findFirst(): ?SiteInterface
     {
-        return $this->findOneBy([], ['id' => 'ASC']);
+        /** @var SiteInterface|null */
+        return $this->createScopedQueryBuilder()
+            ->orderBy(self::ALIAS . '.id', \SortDirection::Ascending)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     /**
@@ -71,5 +87,26 @@ class SiteRepository extends AbstractRepository
     public function findOneByIdOrCode(string $value): ?SiteInterface
     {
         return (ctype_digit($value) ? $this->find((int) $value) : null) ?? $this->findOneBy(['code' => $value]);
+    }
+
+    /**
+     * Every read of the admin and the API (lists, edit page, switcher): the sites of the
+     * current user only.
+     */
+    protected function configureListQueryBuilder(QueryBuilder $qb): void
+    {
+        $ids = $this->access->allowedSiteIds();
+
+        if (null === $ids) {
+            return;
+        }
+
+        if ([] === $ids) {
+            $qb->andWhere('1 = 0');
+
+            return;
+        }
+
+        $qb->andWhere(self::ALIAS . '.id IN (:gm_allowed_sites)')->setParameter('gm_allowed_sites', $ids);
     }
 }

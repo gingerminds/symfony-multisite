@@ -29,7 +29,8 @@ final readonly class SiteSwitchController
     {
         $payload = $request->getPayload();
         $token = new CsrfToken(self::CSRF_TOKEN_ID, $payload->getString('_token'));
-        $site = $this->csrfTokenManager->isTokenValid($token) ? $this->sites->find($payload->getInt('site_id')) : null;
+        // findOneForRead(): among the sites of the current user only.
+        $site = $this->csrfTokenManager->isTokenValid($token) ? $this->sites->findOneForRead($payload->getInt('site_id')) : null;
 
         if (null !== $site) {
             $request->getSession()->set(self::SESSION_KEY, $site->getId());

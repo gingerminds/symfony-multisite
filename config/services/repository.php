@@ -14,7 +14,7 @@ return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
     $services->set(SiteRepository::class)
-        ->args([service('doctrine'), param('gingerminds_multisite.resource.site.entity')])
+        ->args([service('doctrine'), param('gingerminds_multisite.resource.site.entity'), service('gingerminds_multisite.security.site_access')])
         ->tag('doctrine.repository_service');
     $services->alias('gingerminds_multisite.repository.site', SiteRepository::class);
 
