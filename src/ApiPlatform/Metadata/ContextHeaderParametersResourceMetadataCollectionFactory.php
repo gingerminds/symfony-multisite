@@ -23,7 +23,8 @@ use Gingerminds\MultisiteBundle\Model\TranslatableInterface;
  */
 final readonly class ContextHeaderParametersResourceMetadataCollectionFactory implements ResourceMetadataCollectionFactoryInterface
 {
-    private const string SITE_DESCRIPTION = 'Restricts the response to the given site (id or code). Falls back to the request host, then to the first site, when omitted.';
+    private const string SITE_DESCRIPTION = 'Restricts the response to the given site (id or code). Falls back to the request host, '
+        . 'then to the first site (or a 404, depending on the configuration), when omitted.';
     private const string LANGUAGE_DESCRIPTION = 'Selects the language of the response (translations, language scoped rows): '
         . 'the first language enabled on the site, else its default language.';
 

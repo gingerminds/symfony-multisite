@@ -24,6 +24,9 @@ gingerminds_multisite:
 
     translation_fallback: true # API only: a missing translation falls back to the site default
                                # language (false: its fields are null), see Context.md
+
+    unknown_host: first_site   # a host matching no site URL (no X-Site-Id): the first site, or a
+                               # 404 (not_found); the admin always falls back, see Context.md
 ```
 
 ## Resources

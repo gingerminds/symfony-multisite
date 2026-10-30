@@ -81,6 +81,7 @@ final class GingermindsMultisiteBundle extends AbstractResourceBundle
         $parameters->set('gingerminds_multisite.translation.log_channel', $config['translation']['log_channel']);
         $parameters->set('gingerminds_multisite.translation.encryption_key', $config['translation']['encryption_key']);
         $parameters->set('gingerminds_multisite.translation_fallback', $config['translation_fallback']);
+        $parameters->set('gingerminds_multisite.unknown_host', $config['unknown_host']);
 
         $container->services()->get('gingerminds_multisite.translation.service')
             ->tag('monolog.logger', ['channel' => $config['translation']['log_channel']]);

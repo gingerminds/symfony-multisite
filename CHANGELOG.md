@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   card of the user form for a super admin or the holders of the new `assign sites` permission;
   `sites` filter of the user list and API. See
   `docs/SiteAccess.md`.
+- `unknown_host` option: a request whose host matches no site (and without `X-Site-Id`) falls
+  back to the first site (`first_site`, default) or is a 404 (`not_found`); the admin always
+  falls back.
 
 ### Changed
 
@@ -46,6 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `#[IsCsrfTokenValid]` (an invalid token is the core flash and redirection), `#[IsGranted]`;
   the translations refresh only targets the sites of the user.
 - Default language check of `SiteType`: a `Callback` constraint (no `translator` argument).
+- The translations refresh fetches them again while the cached ones keep being served
+  (`TranslationService::refreshForSite()`, `resetCacheForSite()` removed): no gap where every
+  request calls Google.
 - `UniqueTranslationSlugValidator` takes the `property_accessor` service; the xlsx is read by the
   Xlsx reader (no temporary `.xlsx` rename).
 

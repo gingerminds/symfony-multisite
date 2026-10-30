@@ -24,7 +24,6 @@ final readonly class RefreshSiteTranslationsHandler
             return;
         }
 
-        $this->translations->resetCacheForSite($site);
-        $this->translations->getTranslationsForSite($site);
+        $this->translations->refreshForSite($site);
     }
 }

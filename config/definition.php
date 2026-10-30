@@ -61,6 +61,14 @@ return static function (DefinitionConfigurator $definition): void {
                 ->end()
             ->end()
         ->end()
+        ->enumNode('unknown_host')
+            ->info(
+                'A request whose host matches no site URL (and naming no site by X-Site-Id): the first site '
+                . '(first_site) or a 404 (not_found). The admin always falls back to the first site.',
+            )
+            ->values(['first_site', 'not_found'])
+            ->defaultValue('first_site')
+        ->end()
         ->booleanNode('translation_fallback')
             ->info(
                 'API requests only: a missing translation falls back to the site default language (true, as Laravel) '

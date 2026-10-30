@@ -20,7 +20,12 @@ return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
     $services->set('gingerminds_multisite.context.site_resolver', SiteContextResolver::class)
-        ->args([service(SiteRepository::class), service('gingerminds_multisite.security.site_access')]);
+        ->args([
+            service(SiteRepository::class),
+            service('gingerminds_multisite.security.site_access'),
+            param('gingerminds_multisite.unknown_host'),
+            param('gingerminds_core.admin_prefix'),
+        ]);
     $services->alias(SiteContextResolver::class, 'gingerminds_multisite.context.site_resolver');
 
     $services->set('gingerminds_multisite.context.site', SiteContext::class)

@@ -11,8 +11,8 @@ use Gingerminds\MultisiteBundle\Context\SiteContext;
 use Gingerminds\MultisiteBundle\Doctrine\Filter\LanguageFilter;
 use Gingerminds\MultisiteBundle\Doctrine\Filter\SiteFilter;
 use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
+use Gingerminds\MultisiteBundle\Http\AdminPath;
 use Gingerminds\MultisiteBundle\Security\SiteAccess;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Translation\LocaleSwitcher;
@@ -52,7 +52,7 @@ final readonly class ContextFilterListener
         $language = $this->languageContext->current();
         $languageId = $language?->getId();
 
-        if ($language instanceof LanguageInterface && !$this->isAdmin($event->getRequest())) {
+        if ($language instanceof LanguageInterface && !AdminPath::matches($event->getRequest(), $this->adminPrefix)) {
             // After the LocaleListener and the LocaleAwareListener: the request and the translator.
             $locale = str_replace('-', '_', (string) $language->getIso());
             $event->getRequest()->setLocale($locale);
@@ -78,13 +78,5 @@ final readonly class ContextFilterListener
                 $filters->enable(LanguageFilter::NAME)->setParameter(LanguageFilter::PARAMETER, $languageId, 'integer');
             }
         }
-    }
-
-    private function isAdmin(Request $request): bool
-    {
-        $prefix = '/' . trim($this->adminPrefix, '/');
-        $path = $request->getPathInfo();
-
-        return $path === $prefix || str_starts_with($path, $prefix . '/');
     }
 }

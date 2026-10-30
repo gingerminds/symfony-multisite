@@ -51,12 +51,31 @@ class TranslationService
             return [];
         }
 
-        return $this->cache->get($this->cacheKey($site), function (ItemInterface $item) use ($site): array {
+        return $this->cache->get($this->cacheKey($site), $this->computeCallback($site));
+    }
+
+    /**
+     * Fetches the translations again: the cached ones keep being served until then (no gap
+     * where every request calls Google).
+     */
+    public function refreshForSite(SiteInterface $site): void
+    {
+        if ($this->isEnabledForSite($site)) {
+            $this->cache->get($this->cacheKey($site), $this->computeCallback($site), \INF);
+        }
+    }
+
+    /**
+     * @return \Closure(ItemInterface): array<string, array<string, string>>
+     */
+    private function computeCallback(SiteInterface $site): \Closure
+    {
+        return function (ItemInterface $item) use ($site): array {
             $translations = $this->fetch($site);
             $item->expiresAfter($this->cacheLifetime(null !== $translations));
 
             return $translations ?? [];
-        });
+        };
     }
 
     /**
@@ -65,11 +84,6 @@ class TranslationService
     public function getTranslationsForSiteAndLocale(SiteInterface $site, string $locale): array
     {
         return $this->getTranslationsForSite($site)[mb_strtolower($locale)] ?? [];
-    }
-
-    public function resetCacheForSite(SiteInterface $site): void
-    {
-        $this->cache->delete($this->cacheKey($site));
     }
 
     /**

@@ -34,8 +34,9 @@ Both are resolved once per main request, and reset between requests (`kernel.res
    exists and the request is not stateless (never on the API, even called with the admin session
    cookie from Swagger UI);
 2. the `X-Site-Id` header — a site id or code;
-3. a site whose `url` contains the request host;
-4. the first site.
+3. a site whose `url` has the request host (the `front_urls` are not used);
+4. the first site, or a 404 with `unknown_host: not_found`, except in the admin (usually served on
+   a back-office domain), which always falls back to the first site.
 
 Only among the sites of the current user: see [Site access](SiteAccess.md).
 
