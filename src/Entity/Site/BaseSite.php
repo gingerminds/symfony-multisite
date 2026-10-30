@@ -7,10 +7,9 @@ namespace Gingerminds\MultisiteBundle\Entity\Site;
 use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Gingerminds\CoreBundle\Model\CacheableResourceInterface;
-use Gingerminds\CoreBundle\Model\EagerLoadableInterface;
-use Gingerminds\CoreBundle\Model\SearchableInterface;
-use Gingerminds\CoreBundle\Model\SortableInterface;
+use Gingerminds\CoreBundle\Model\Cacheable;
+use Gingerminds\CoreBundle\Model\Searchable;
+use Gingerminds\CoreBundle\Model\Sortable;
 use Gingerminds\CoreBundle\Model\TimestampableInterface;
 use Gingerminds\CoreBundle\Model\Trait\TimestampableTrait;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -19,7 +18,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\MappedSuperclass]
 #[UniqueEntity(fields: ['code'])]
-abstract class BaseSite implements SiteInterface, TimestampableInterface, SortableInterface, SearchableInterface, EagerLoadableInterface, CacheableResourceInterface, \Stringable
+#[Cacheable(key: 'site', ttl: 86400)]
+abstract class BaseSite implements SiteInterface, TimestampableInterface, \Stringable
 {
     use SiteFrontUrlsTrait;
     use SiteGoogleDriveTrait;
@@ -40,6 +40,8 @@ abstract class BaseSite implements SiteInterface, TimestampableInterface, Sortab
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
+    #[Sortable]
+    #[Searchable]
     protected ?string $code = null;
 
     #[ORM\Column(length: 255)]
@@ -47,6 +49,8 @@ abstract class BaseSite implements SiteInterface, TimestampableInterface, Sortab
     #[Assert\Url(requireTld: false)]
     #[Assert\Length(max: 255)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
+    #[Sortable]
+    #[Searchable]
     protected ?string $url = null;
 
     public function __construct()
@@ -78,26 +82,6 @@ abstract class BaseSite implements SiteInterface, TimestampableInterface, Sortab
     public function setUrl(string $url): void
     {
         $this->url = $url;
-    }
-
-    public static function getSearchableFields(): array
-    {
-        return ['code', 'url'];
-    }
-
-    public static function getEagerLoads(): array
-    {
-        return ['siteLanguages', 'siteLanguages.language', 'frontUrls'];
-    }
-
-    public static function getCacheKey(): string
-    {
-        return 'site';
-    }
-
-    public static function getCacheTtl(): int
-    {
-        return 86400;
     }
 
     public function __toString(): string

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gingerminds\MultisiteBundle\Tests\Functional;
 
+use ApiPlatform\Metadata\NotExposed;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Gingerminds\CoreBundle\Resource\ResourceRegistry;
@@ -57,6 +58,27 @@ final class SiteOverrideTest extends TestCase
         self::assertSame(Site::class, $entityManager->getClassMetadata(SiteLanguage::class)->getAssociationTargetClass('site'));
         self::assertSame(Site::class, $entityManager->getClassMetadata(SiteInterface::class)->getName());
         self::assertSame(Site::class, self::$kernel->getContainer()->get('test.service_container')->get(ResourceRegistry::class)->getEntityClass('site'));
+    }
+
+    public function testTheProjectEntityInheritsTheBundleApiResource(): void
+    {
+        $container = self::$kernel->getContainer()->get('test.service_container');
+        $resources = iterator_to_array($container->get('api_platform.metadata.resource.name_collection_factory')->create());
+
+        self::assertContains(Site::class, $resources);
+        self::assertNotContains(BundleSite::class, $resources);
+
+        $operations = [];
+
+        foreach ($container->get('api_platform.metadata.resource.metadata_collection_factory')->create(Site::class) as $resource) {
+            foreach ($resource->getOperations() ?? [] as $operation) {
+                if (!$operation instanceof NotExposed) {
+                    $operations[] = $operation->getUriTemplate();
+                }
+            }
+        }
+
+        self::assertSame(['/sites{._format}'], $operations);
     }
 
     private function entityManager(): EntityManagerInterface

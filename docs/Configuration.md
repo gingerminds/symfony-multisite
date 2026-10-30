@@ -10,6 +10,7 @@ gingerminds_multisite:
             entity: ~          # project entity extending BaseSite (null: the bundle one)
             controller: ~      # extends the bundle SiteController
             form: ~            # extends the bundle SiteType
+            api: true          # false: no GET /api/sites (inherited by an overriding entity)
         language:
             entity: ~          # extends BaseLanguage
             controller: ~      # extends LanguageController
@@ -23,13 +24,16 @@ gingerminds_multisite:
 
     translation_fallback: true # API only: a missing translation falls back to the site default
                                # language (false: its fields are null), see Context.md
+
+    unknown_host: first_site   # a host matching no site URL (no X-Site-Id): the first site, or a
+                               # 404 (not_found); the admin always falls back, see Context.md
 ```
 
 ## Resources
 
-`site` and `language` are registered as `gingerminds_core` resources (prepended: the project
-`gingerminds_core.resources.site|language` configuration still overrides any key, e.g.
-`redirect_after_edit`):
+`site` and `language` are registered as `gingerminds_core` resources (core
+`AbstractResourceBundle`, below the project `gingerminds_core.resources.site|language`
+configuration, which still overrides any key, e.g. `redirect_after_edit`):
 
 | Key | `site` | `language` |
 |---|---|---|
@@ -44,26 +48,19 @@ entries: users 0 … permissions 30).
 
 ## Overriding the `Site` entity
 
-As the core entities: extend the mapped superclass, restate the class-level attributes, declare it.
+As the core entities: extend the mapped superclass, restate the Doctrine class-level attributes, declare it.
+The bundle `#[ApiResource]` (`GET /api/sites`) is inherited: restate one only to change it.
 
 ```php
 // src/Entity/Site/Site.php
 namespace App\Entity\Site;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\GetCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gingerminds\MultisiteBundle\Entity\Site\BaseSite;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
 
 #[ORM\Entity(repositoryClass: SiteRepository::class)]
 #[ORM\Table(name: 'sites')]
-#[ApiResource(
-    shortName: 'Site',
-    operations: [new GetCollection(normalizationContext: ['groups' => [BaseSite::GROUP_LIST], 'skip_null_values' => false])],
-    paginationClientItemsPerPage: true,
-    provider: 'gingerminds_multisite.api.provider.site',
-)]
 class Site extends BaseSite
 {
     #[ORM\Column(length: 30, nullable: true)]
@@ -78,8 +75,8 @@ gingerminds_multisite:
             entity: App\Entity\Site\Site
 ```
 
-The bundle then excludes its own `Site` from the Doctrine mapping and the API resources,
-resolves `SiteInterface` to your class (every relation targets it) and uses it in forms, voters,
+The bundle then excludes its own `Site` from the Doctrine mapping and gives its API resource to
+yours, resolves `SiteInterface` to your class (every relation targets it) and uses it in forms, voters,
 repositories and the context. The `site_language` / `site_front_urls` relations are mapped on your
 class automatically (`SiteMetadataListener`: Doctrine forbids inverse sides on a mapped superclass).
 `Language` works the same way (`BaseLanguage`, `LanguageInterface`).
@@ -112,3 +109,8 @@ decorate or replace it as usual. The most useful ones:
 | `gingerminds_multisite.context.language_resolver` | how the current language is resolved (`LanguageContextResolver`) |
 | `gingerminds_multisite.translation.source` | where the translations xlsx is downloaded from (`TranslationSourceInterface`) |
 | `gingerminds_multisite.translation_cache` | cache pool of the front translations (`cache.app` adapter) |
+
+To force the site of a request (e.g. from a route parameter), call `SiteContext::setSite()` in a
+`kernel.request` listener running before `ContextFilterListener` (priority above 6): the filters,
+the language and the cache context then use it. It is not checked against the
+[site access](SiteAccess.md) of the user. Commands and message handlers set it the same way.

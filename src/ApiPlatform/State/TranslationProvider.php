@@ -7,7 +7,7 @@ namespace Gingerminds\MultisiteBundle\ApiPlatform\State;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use Gingerminds\MultisiteBundle\ApiResource\Translation;
-use Gingerminds\MultisiteBundle\Context\AcceptLanguage;
+use Gingerminds\MultisiteBundle\Context\LanguageContextResolver;
 use Gingerminds\MultisiteBundle\Context\SiteContext;
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
@@ -42,10 +42,13 @@ final readonly class TranslationProvider implements ProviderInterface
         }
 
         $translations = $this->translations->getTranslationsForSite($site);
-        $locale = AcceptLanguage::primary($request?->headers->get('Accept-Language'));
 
-        if (null !== $locale) {
-            $translations = array_intersect_key($translations, [$locale => true]);
+        if ($request instanceof Request && '' !== trim((string) $request->headers->get('Accept-Language')) && [] !== $translations) {
+            // The site default language first: the answer when the request accepts none.
+            $codes = array_map(strval(...), array_keys($translations));
+            $codes = array_values(array_unique([...array_intersect([(string) $site->getDefaultLanguage()?->getIso()], $codes), ...$codes]));
+            $locale = LanguageContextResolver::preferred($request, $codes);
+            $translations = array_intersect_key($translations, [(string) $locale => true]);
         }
 
         $resources = [];

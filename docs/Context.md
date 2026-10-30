@@ -22,7 +22,19 @@ public function __invoke(): Response
 }
 ```
 
-In Twig: `gm_current_site()` and `gm_current_language()`.
+In Twig, the public functions for the front templates:
+
+| Function | Returns |
+|---|---|
+| `gm_current_site()` | the current site (`?SiteInterface`): `gm_current_site().code`, `.url` |
+| `gm_current_language()` | the current language (`?LanguageInterface`): `gm_current_language().iso` |
+
+```twig
+<html lang="{{ gm_current_language().iso|default('fr') }}">
+```
+
+The other `gm_multisite_*` functions serve the bundle templates (site switcher, translations
+refresh) and may change.
 
 Both are resolved once per main request, and reset between requests (`kernel.reset`).
 
@@ -34,16 +46,23 @@ Both are resolved once per main request, and reset between requests (`kernel.res
    exists and the request is not stateless (never on the API, even called with the admin session
    cookie from Swagger UI);
 2. the `X-Site-Id` header — a site id or code;
-3. a site whose `url` contains the request host;
-4. the first site.
+3. a site whose `url` has the request host (the `front_urls` are not used);
+4. the first site, or a 404 with `unknown_host: not_found`, except in the admin (usually served on
+   a back-office domain), which always falls back to the first site.
+
+Only among the sites of the current user: see [Site access](SiteAccess.md).
 
 ## `LanguageContext`
 
 Resolved on the current site (no site: `null` for both):
 
 - **fallback**: the site language flagged as default, else its first language;
-- **current**: the first `Accept-Language` code (primary subtag, header order: `fr-FR,en;q=0.8`
-  gives `fr`, then `en`) enabled on the site, else the fallback.
+- **current**: the `Accept-Language` preferred language enabled on the site
+  (`Request::getPreferredLanguage()`: quality values, `fr-FR` matches `fr`), else the fallback.
+
+Out of the admin (`gingerminds_core.admin_prefix`), the current language is also the Symfony
+locale: the request one and the translator, Intl and Twig ones (`LocaleSwitcher`). The admin keeps
+the language of its interface, the current language being the one of the edited content.
 
 A translatable entity shows its translation in the current language, else in the fallback one
 (`ids()`). On the API requests (under `gingerminds_core.api.prefix`), `translation_fallback: false`

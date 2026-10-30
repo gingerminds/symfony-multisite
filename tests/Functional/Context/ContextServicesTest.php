@@ -10,7 +10,7 @@ use Gingerminds\CoreBundle\Cache\CacheContextResolverInterface;
 use Gingerminds\MultisiteBundle\Cache\SiteLanguageCacheContextResolver;
 use Gingerminds\MultisiteBundle\Context\LanguageContext;
 use Gingerminds\MultisiteBundle\Context\SiteContext;
-use Gingerminds\MultisiteBundle\Doctrine\SiteQuery;
+use Gingerminds\MultisiteBundle\Entity\Site\Site;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\Article;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\ArticleTranslation;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\Document;
@@ -61,23 +61,17 @@ final class ContextServicesTest extends ApiTestCase
         self::assertSame(['site' => $alpha->getId(), 'lang' => $fr->getId()], $resolver->resolve());
     }
 
-    public function testSiteQueryRestrictsToASiteAndTheSharedRows(): void
+    public function testTheSiteOfAHostIsAnExactHostMatch(): void
     {
-        $alpha = $this->fixtures->site('alpha');
-        $beta = $this->fixtures->site('beta');
+        $shop = $this->fixtures->site('shop', url: 'https://shop.example.com');
+        $main = $this->fixtures->site('main', url: 'https://Example.com:8443/fr');
 
-        foreach (['a' => $alpha, 'b' => $beta, 'shared' => null] as $code => $site) {
-            $article = new Article($code);
-            $article->setSite($site);
-            $this->entityManager()->persist($article);
-        }
+        $sites = $this->entityManager()->getRepository(Site::class);
 
-        $this->entityManager()->flush();
-
-        $qb = $this->entityManager()->getRepository(Article::class)->createQueryBuilder('a')->orderBy('a.id');
-        $codes = array_map(static fn (Article $article): string => $article->getCode(), SiteQuery::restrict($qb, 'a', $beta)->getQuery()->getResult());
-
-        self::assertSame(['b', 'shared'], $codes);
+        self::assertSame($main, $sites->findOneByHost('example.com'), 'A subdomain site never matches its parent host.');
+        self::assertSame($shop, $sites->findOneByHost('shop.example.com'));
+        self::assertNull($sites->findOneByHost('ample.com'), 'A host suffix is no match.');
+        self::assertNull($sites->findOneByHost(''));
     }
 
     public function testTranslationsLookupAndFallback(): void

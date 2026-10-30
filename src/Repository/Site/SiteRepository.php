@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Gingerminds\MultisiteBundle\Repository\Site;
 
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Gingerminds\CoreBundle\Repository\AbstractRepository;
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
-use Gingerminds\MultisiteBundle\Form\Site\SiteType;
-use Gingerminds\MultisiteBundle\Security\CredentialsEncryptor;
-use Symfony\Component\Form\FormInterface;
+use Gingerminds\MultisiteBundle\Security\SiteAccess;
 
 /**
  * @extends AbstractRepository<SiteInterface>
@@ -22,42 +21,64 @@ class SiteRepository extends AbstractRepository
     public function __construct(
         ManagerRegistry $registry,
         string $entityClass,
-        private readonly CredentialsEncryptor $encryptor,
+        private readonly SiteAccess $access,
     ) {
         parent::__construct($registry, $entityClass);
     }
 
     /**
+     * The sites of the current user (SiteAccess).
+     *
      * @return list<SiteInterface>
      */
     public function findAllOrdered(): array
     {
-        return $this->findBy([], ['code' => 'ASC']);
-    }
-
-    public function findFirst(): ?SiteInterface
-    {
-        return $this->findOneBy([], ['id' => 'ASC']);
+        /** @var list<SiteInterface> */
+        return $this->createScopedQueryBuilder()->orderBy(self::ALIAS . '.code', \SortDirection::Ascending)->getQuery()->getResult();
     }
 
     /**
-     * The first site whose URL contains the host (e.g. `brand.example.com` for `https://brand.example.com`).
+     * The first site of the current user (SiteAccess).
+     */
+    public function findFirst(): ?SiteInterface
+    {
+        /** @var SiteInterface|null */
+        return $this->createScopedQueryBuilder()
+            ->orderBy(self::ALIAS . '.id', \SortDirection::Ascending)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * The first site whose URL host is exactly the host (e.g. `brand.example.com` for
+     * `https://brand.example.com/fr`, never for `https://shop.brand.example.com`).
      */
     public function findOneByHost(string $host): ?SiteInterface
     {
+        $host = strtolower($host);
+
         if ('' === $host) {
             return null;
         }
 
-        /** @var SiteInterface|null */
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.url LIKE :host')
+        /** @var list<SiteInterface> $candidates */
+        $candidates = $this->createQueryBuilder('s')
+            // Narrows to the URLs containing the host; the exact host match is checked below.
             // A host holds no `%`; no ESCAPE clause (its default differs between platforms).
+            ->andWhere('s.url LIKE :host')
             ->setParameter('host', '%' . $host . '%')
             ->orderBy('s.id', \SortDirection::Ascending)
-            ->setMaxResults(1)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
+
+        foreach ($candidates as $site) {
+            if ($host === strtolower((string) parse_url((string) $site->getUrl(), \PHP_URL_HOST))) {
+                return $site;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -69,24 +90,23 @@ class SiteRepository extends AbstractRepository
     }
 
     /**
-     * @param SiteInterface $entity
+     * Every read of the admin and the API (lists, edit page, switcher): the sites of the
+     * current user only.
      */
-    protected function beforeSave(object $entity, ?FormInterface $form): void
+    protected function configureListQueryBuilder(QueryBuilder $qb): void
     {
-        if (!$form instanceof FormInterface || !$form->has(SiteType::CREDENTIALS_FIELD)) {
+        $ids = $this->access->allowedSiteIds();
+
+        if (null === $ids) {
             return;
         }
 
-        $credentials = $form->get(SiteType::CREDENTIALS_FIELD)->getData();
+        if ([] === $ids) {
+            $qb->andWhere('1 = 0');
 
-        if (!\is_string($credentials) || '' === trim($credentials)) {
             return;
         }
 
-        $decoded = json_decode($credentials, true, flags: \JSON_THROW_ON_ERROR);
-
-        if (\is_array($decoded)) {
-            $entity->setEncryptedGoogleCredentials($this->encryptor->encrypt($decoded));
-        }
+        $qb->andWhere(self::ALIAS . '.id IN (:gm_allowed_sites)')->setParameter('gm_allowed_sites', $ids);
     }
 }

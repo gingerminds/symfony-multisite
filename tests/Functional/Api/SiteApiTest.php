@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Gingerminds\MultisiteBundle\Tests\Functional\Api;
 
-use Gingerminds\CoreBundle\ApiPlatform\Metadata\HeaderParameterRegistry;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
+use ApiPlatform\Metadata\Resource\ResourceMetadataCollection;
+use Gingerminds\MultisiteBundle\ApiPlatform\Metadata\ContextHeaderParametersResourceMetadataCollectionFactory;
 use Gingerminds\MultisiteBundle\ApiResource\Translation;
 use Gingerminds\MultisiteBundle\Entity\Site\Site;
 use Gingerminds\MultisiteBundle\Tests\Application\Entity\Article;
@@ -43,7 +47,7 @@ final class SiteApiTest extends ApiTestCase
             $this->fixtures->site($code);
         }
 
-        $data = $this->api('GET', '/api/sites?itemsPerPage=2&sortBy=code&sort=asc');
+        $data = $this->api('GET', '/api/sites?itemsPerPage=2&order[code]=asc');
 
         $this->assertStatus(200);
         self::assertSame(3, $data['totalItems']);
@@ -100,8 +104,18 @@ final class SiteApiTest extends ApiTestCase
 
     public function testContextHeadersAreDocumentedOnTheContextedResources(): void
     {
-        $registry = self::getContainer()->get(HeaderParameterRegistry::class);
-        $keys = static fn (string $class): array => array_values(array_unique(array_map(static fn ($parameter): string => (string) $parameter->getKey(), $registry->for($class))));
+        // Every class as a resource with one operation: the headers depend on the class only.
+        $factory = new ContextHeaderParametersResourceMetadataCollectionFactory(new class implements ResourceMetadataCollectionFactoryInterface {
+            public function create(string $resourceClass): ResourceMetadataCollection
+            {
+                return new ResourceMetadataCollection($resourceClass, [new ApiResource(operations: ['get' => new Get(name: 'get')], class: $resourceClass)]);
+            }
+        });
+        $keys = static function (string $class) use ($factory): array {
+            $operations = iterator_to_array($factory->create($class)[0]->getOperations() ?? []);
+
+            return array_keys(iterator_to_array($operations['get']->getParameters() ?? []));
+        };
 
         self::assertSame(['X-Site-Id', 'Accept-Language'], $keys(Article::class));
         self::assertSame(['Accept-Language'], $keys(Media::class));

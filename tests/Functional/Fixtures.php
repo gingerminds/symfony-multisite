@@ -9,9 +9,9 @@ use Gingerminds\CoreBundle\Entity\Permission\Permission;
 use Gingerminds\CoreBundle\Entity\Role\Role;
 use Gingerminds\CoreBundle\Entity\Security\ApiToken;
 use Gingerminds\CoreBundle\Entity\User\Contributor;
-use Gingerminds\CoreBundle\Entity\User\User;
 use Gingerminds\MultisiteBundle\Entity\Language\Language;
 use Gingerminds\MultisiteBundle\Entity\Site\Site;
+use Gingerminds\MultisiteBundle\Tests\Application\Entity\User;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
@@ -61,12 +61,15 @@ final readonly class Fixtures
     }
 
     /**
-     * @param list<string> $permissions permissions granted through a dedicated role
+     * @param list<string>    $permissions permissions granted through a dedicated role
+     * @param list<Site>|null $sites       null: every site
      */
-    public function user(string $email, array $permissions = [], bool $superAdmin = false): User
+    public function user(string $email, array $permissions = [], bool $superAdmin = false, ?array $sites = null): User
     {
         $user = new User();
         $user->setEmail($email);
+        $user->setAllSites(null === $sites);
+        $user->setSites($sites ?? []);
         $user->setPassword($this->passwordHasher->hashPassword($user, self::PASSWORD));
 
         if ($superAdmin) {

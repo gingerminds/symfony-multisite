@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gingerminds\MultisiteBundle\Entity\Site;
 
 use Doctrine\Common\Collections\Collection;
+use Gingerminds\CoreBundle\Model\EagerLoad;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
@@ -16,8 +17,12 @@ trait SiteFrontUrlsTrait
     /**
      * @var Collection<int, SiteFrontUrl>
      */
+    #[EagerLoad]
     protected Collection $frontUrls;
 
+    /**
+     * @return Collection<int, SiteFrontUrl>
+     */
     public function getFrontUrls(): Collection
     {
         return $this->frontUrls;

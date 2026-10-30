@@ -6,6 +6,7 @@ namespace Gingerminds\MultisiteBundle\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Gingerminds\CoreBundle\Model\EagerLoad;
 use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
 use Gingerminds\MultisiteBundle\Exception\MappingException;
 
@@ -14,8 +15,8 @@ use Gingerminds\MultisiteBundle\Exception\MappingException;
  * entity class followed by `Translation` (`Product` → `ProductTranslation`):
  * override getTranslationEntityClass() otherwise.
  *
- * Eager load the translations from getEagerLoads() (EagerLoadableInterface):
- * `[...self::getTranslationEagerLoads()]`, no query per row on lists.
+ * The translations and their language are eager loaded on every repository read
+ * (`#[EagerLoad]`): no query per row on lists.
  */
 trait TranslatableTrait
 {
@@ -24,6 +25,7 @@ trait TranslatableTrait
      *
      * @var Collection<int, TranslationInterface>
      */
+    #[EagerLoad(paths: ['language'])]
     protected Collection $translations;
 
     /**
@@ -40,14 +42,6 @@ trait TranslatableTrait
         }
 
         return $class;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public static function getTranslationEagerLoads(): array
-    {
-        return ['translations', 'translations.language'];
     }
 
     public function getTranslations(): Collection

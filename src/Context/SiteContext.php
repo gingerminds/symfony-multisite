@@ -35,9 +35,11 @@ class SiteContext implements ResetInterface
         $request = $this->requestStack->getMainRequest();
 
         if (!$this->resolved || $request !== $this->resolvedFor) {
-            $this->site = $request instanceof Request ? $this->resolver->resolve($request) : null;
+            // Resolved once, even when it throws (403): no site while rendering the error.
+            $this->site = null;
             $this->resolvedFor = $request;
             $this->resolved = true;
+            $this->site = $request instanceof Request ? $this->resolver->resolve($request) : null;
         }
 
         return $this->site;

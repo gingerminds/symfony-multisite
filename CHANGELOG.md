@@ -8,6 +8,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Site access per user, opt-in: `SiteRestrictedUserInterface` / `UserSitesTrait` on the project
+  user (`all_sites`, `user_sites`). The current site, the site switcher, the site list and edit
+  page are limited to the user's sites (an `X-Site-Id` naming another site is a 403); the **Sites**
+  card of the user form for a super admin or the holders of the new `assign sites` permission;
+  `sites` filter of the user list and API. See
+  `docs/SiteAccess.md`.
+- `unknown_host` option: a request whose host matches no site (and without `X-Site-Id`) falls
+  back to the first site (`first_site`, default) or is a 404 (`not_found`); the admin always
+  falls back.
+
+### Changed
+
+- **BC break** — requires `gingerminds/symfony-core` ^1.10.1:
+  - the bundle extends the core `AbstractResourceBundle`: the site and language admin resources are
+    registered on load (below the project `gingerminds_core.resources`), `resources.*.api: false`
+    removes an entity from the API;
+  - an entity overriding `Site` inherits its `#[ApiResource]` (no copy to keep in sync);
+  - `#[Cacheable]`, `#[CacheCascade]`, `#[Sortable]`, `#[Searchable]` and `#[EagerLoad]` on the
+    entities instead of the removed core interfaces; `TranslatableTrait` eager loads the
+    translations and their language (`getTranslationEagerLoads()` removed, `make:gm:* --translated`
+    no longer generates `getEagerLoads()`);
+  - `GET /api/sites`: API Platform Doctrine provider and core list contract (`order[code]=asc`,
+    `search=`);
+  - `#[SiteScoped]` / `#[LanguageScoped]` attributes instead of `SiteScopedInterface` /
+    `LanguageScopedInterface`; the context headers are documented by the bundle's own metadata
+    factory (the core `HeaderParameterRegistry` is gone);
+  - the cache context resolver decorates `gingerminds_core.cache.context_resolver` (no compiler pass);
+  - site and language permissions checked by the core `ResourceVoter` (`SiteVoter` / `LanguageVoter`
+    removed), `SiteController` / `LanguageController` follow the core `AbstractCrudController`
+    (no `CrudContext`);
+  - the Google credentials are encrypted by `SiteType` (`setter` of the field) instead of
+    `SiteRepository::beforeSave()`.
+- The current language is the Symfony locale out of the admin (request, translator, Intl, Twig).
+- `Accept-Language` resolved by `Request::getPreferredLanguage()`: quality values honoured;
+  `/api/translations` answers the next accepted locale, else the site default one (was nothing).
+  `AcceptLanguage` removed.
+- Twig functions attribute based (`#[AsTwigFunction]`): no translation service built with Twig.
+- `SiteSwitchController` / `TranslationRefreshController`: `AbstractController`,
+  `#[IsCsrfTokenValid]` (an invalid token is the core flash and redirection), `#[IsGranted]`;
+  the translations refresh only targets the sites of the user.
+- Default language check of `SiteType`: a `Callback` constraint (no `translator` argument).
+- The translations refresh fetches them again while the cached ones keep being served
+  (`TranslationService::refreshForSite()`, `resetCacheForSite()` removed): no gap where every
+  request calls Google.
+- `UniqueTranslationSlugValidator` takes the `property_accessor` service; the xlsx is read by the
+  Xlsx reader (no temporary `.xlsx` rename).
+
+### Removed
+
+- Dead code: `TranslationService::isEnabled()` and `getTranslationsForSiteAndLocale()`,
+  `LanguageContext::has()`, `SiteInterface::getFrontUrls()` (the trait keeps it), the
+  `gingerminds_multisite.repository.*` aliases (the repositories keep their class id) and the
+  `gm_multisite_admin_site()` Twig function (`gm_current_site()`).
+- `SiteQuery` (`getFilters()->disable(SiteFilter::NAME)` and a plain condition instead).
+
+### Fixed
+
+- No `tabindex` on the tab panes of the translations form theme and of the `make:gm:* --translated`
+  form template (SonarQube: `tabindex` on non interactive elements).
+
+## [1.2.0] - 2026-10-21
+
+### Added
+
 - `translation_fallback` option (default `true`, as Laravel): `false` removes the fallback language
   from the translations of the API requests (under `gingerminds_core.api.prefix`): a missing
   translation gives `null` fields, the rows stay. The admin and the other requests always fall

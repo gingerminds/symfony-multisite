@@ -47,3 +47,11 @@ translations:
     refresh_action: Rafraîchir les traductions
     refresh_dispatched: La mise à jour des traductions a été lancée.
     site_required: Merci de sélectionner un site dont les traductions Google Drive sont configurées.
+
+user_sites:
+    title: Sites
+    field:
+        all_sites: Tous les sites
+        sites: Sites
+    help:
+        all_sites: Y compris les sites créés plus tard ; les sites ci-dessous sont alors ignorés.

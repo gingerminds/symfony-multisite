@@ -37,7 +37,7 @@
         <div class="tab-content pt-3">
             {%- for child in form -%}
                 <div class="tab-pane fade{{ child.vars.name == active ? ' show active' }}" id="{{ child.vars.id }}-pane"
-                     role="tabpanel" aria-labelledby="{{ child.vars.id }}-tab" tabindex="0">
+                     role="tabpanel" aria-labelledby="{{ child.vars.id }}-tab">
                     {{- form_errors(child) -}}
                     {{- form_widget(child) -}}
                 </div>

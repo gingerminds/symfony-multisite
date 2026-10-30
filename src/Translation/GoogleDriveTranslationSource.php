@@ -33,15 +33,12 @@ final class GoogleDriveTranslationSource implements TranslationSourceInterface
             ? $drive->files->export($fileId, self::XLSX_MIME_TYPE, ['alt' => 'media'])
             : $drive->files->get($fileId, ['alt' => 'media', 'supportsAllDrives' => true]);
 
-        $temporary = tempnam(sys_get_temp_dir(), 'gm_translation_');
+        $path = tempnam(sys_get_temp_dir(), 'gm_translation_');
 
-        if (false === $temporary) {
+        if (false === $path) {
             throw TranslationSourceException::temporaryFile();
         }
 
-        // The xlsx reader needs the extension.
-        $path = $temporary . '.xlsx';
-        rename($temporary, $path);
         file_put_contents($path, $response->getBody()->getContents());
 
         return $path;

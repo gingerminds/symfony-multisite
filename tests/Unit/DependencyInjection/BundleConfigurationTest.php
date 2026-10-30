@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gingerminds\MultisiteBundle\Tests\Unit\DependencyInjection;
 
 use Gingerminds\CoreBundle\DependencyInjection\Compiler\OverriddenEntityPass;
+use Gingerminds\CoreBundle\DependencyInjection\Compiler\ResourceRegistryPass;
 use Gingerminds\MultisiteBundle\Controller\Site\SiteController;
 use Gingerminds\MultisiteBundle\Doctrine\Filter\LanguageFilter;
 use Gingerminds\MultisiteBundle\Doctrine\Filter\SiteFilter;
@@ -12,6 +13,7 @@ use Gingerminds\MultisiteBundle\Entity\Language\Language;
 use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
 use Gingerminds\MultisiteBundle\Entity\Site\Site;
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
+use Gingerminds\MultisiteBundle\Form\Site\SiteType;
 use Gingerminds\MultisiteBundle\GingermindsMultisiteBundle;
 use Gingerminds\MultisiteBundle\Tests\Application\Override\Site as ProjectSite;
 use PHPUnit\Framework\TestCase;
@@ -36,20 +38,32 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame(['class' => LanguageFilter::class, 'enabled' => false], $doctrine['filters'][LanguageFilter::NAME]);
 
         $core = $this->merged($container, 'gingerminds_core');
+        self::assertArrayNotHasKey('resources', $core, 'Registered on load (ResourceRegistryPass), below the project configuration.');
+        self::assertSame(['manage translations', 'assign sites'], $core['permissions']);
+        self::assertSame([
+            'sidebar_bottom' => ['@GingermindsMultisite/admin/_site_switcher.html.twig'],
+            'user_form_sidebar' => ['@GingermindsMultisite/admin/_user_sites.html.twig'],
+        ], $core['admin_includes']);
+        self::assertArrayHasKey('gingerminds_multisite.translation_cache', $this->merged($container, 'framework')['cache']['pools']);
+    }
+
+    public function testTheAdminResourcesAreRegisteredOnLoad(): void
+    {
+        $container = $this->prepend([]);
+        $this->bundle()->getContainerExtension()?->load([], $container);
+
         self::assertSame([
             'entity' => Site::class,
             'controller' => SiteController::class,
-            'form' => $core['resources']['site']['form'],
+            'form' => SiteType::class,
             'path' => 'sites',
             'permission' => 'sites',
             'route_prefix' => 'gingerminds_multisite_site',
             'translation_prefix' => 'site',
             'translation_domain' => 'GingermindsMultisite',
             'template_prefix' => '@GingermindsMultisite/pages/site',
-        ], $core['resources']['site']);
-        self::assertSame(['manage translations'], $core['permissions']);
-        self::assertSame(['sidebar_bottom' => ['@GingermindsMultisite/admin/_site_switcher.html.twig']], $core['admin_includes']);
-        self::assertArrayHasKey('gingerminds_multisite.translation_cache', $this->merged($container, 'framework')['cache']['pools']);
+        ], $this->bundleResource($container, 'site'));
+        self::assertSame(Language::class, $this->bundleResource($container, 'language')['entity']);
     }
 
     public function testTwigAndMonologOnlyWhenRegistered(): void
@@ -71,9 +85,10 @@ final class BundleConfigurationTest extends TestCase
         $container = $this->prepend($configs);
 
         self::assertSame(ProjectSite::class, $this->merged($container, 'doctrine')['orm']['resolve_target_entities'][SiteInterface::class]);
-        self::assertSame(ProjectSite::class, $this->merged($container, 'gingerminds_core')['resources']['site']['entity']);
 
         $this->bundle()->getContainerExtension()?->load($configs, $container);
+
+        self::assertSame(ProjectSite::class, $this->bundleResource($container, 'site')['entity']);
 
         self::assertSame(ProjectSite::class, $container->getParameter('gingerminds_multisite.resource.site.entity'));
         self::assertSame(Language::class, $container->getParameter('gingerminds_multisite.resource.language.entity'));
@@ -85,7 +100,7 @@ final class BundleConfigurationTest extends TestCase
     {
         $container = $this->prepend([['translation' => ['enabled' => '%env(bool:TRANSLATION_ENABLED)%']]]);
 
-        self::assertSame(Site::class, $this->merged($container, 'gingerminds_core')['resources']['site']['entity']);
+        self::assertSame([SiteInterface::class => Site::class, LanguageInterface::class => Language::class], $this->merged($container, 'doctrine')['orm']['resolve_target_entities']);
     }
 
     /**
@@ -139,6 +154,17 @@ final class BundleConfigurationTest extends TestCase
     private function merged(ContainerBuilder $container, string $extension): array
     {
         return array_replace_recursive([], ...$container->getExtensionConfig($extension));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function bundleResource(ContainerBuilder $container, string $name): array
+    {
+        $attributes = $container->getDefinition(ResourceRegistryPass::BUNDLE_RESOURCE_TAG . '.' . $name)->getTag(ResourceRegistryPass::BUNDLE_RESOURCE_TAG)[0];
+        unset($attributes['resource']);
+
+        return $attributes;
     }
 
     private function bundle(): GingermindsMultisiteBundle

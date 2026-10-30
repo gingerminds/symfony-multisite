@@ -1,7 +1,7 @@
 {% trans_default_domain 'GingermindsMultisite' %}
 {% set sites = gm_multisite_switchable_sites() %}
 {% if sites is not empty %}
-    {% set current = gm_multisite_admin_site() %}
+    {% set current = gm_current_site() %}
     <form method="post" action="{{ path('gingerminds_multisite_site_switch') }}" class="dropup gm-site-switcher" data-turbo="false">
         <input type="hidden" name="_token" value="{{ csrf_token('gingerminds_multisite_site_switch') }}">
         <button type="button" class="btn border-0 w-100 text-start d-flex align-items-center text-white dropdown-toggle sidebar-profile-toggle"

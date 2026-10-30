@@ -10,9 +10,9 @@ use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
 /**
  * An entity whose language dependent fields live in a translation entity, one
  * row per language. TranslatableMetadataListener maps the `translations`
- * relation, TranslatableListener gives each entity the current languages.
+ * relation, ContextEntityListener gives each entity the current languages.
  */
-interface TranslatableInterface extends LanguageScopedInterface
+interface TranslatableInterface
 {
     /**
      * @return class-string<TranslationInterface>
@@ -41,7 +41,7 @@ interface TranslatableInterface extends LanguageScopedInterface
     public function getTranslation(LanguageInterface|int|null $language = null, bool $fallback = true): ?TranslationInterface;
 
     /**
-     * Ids of the languages to try, best first (set by TranslatableListener).
+     * Ids of the languages to try, best first (set by ContextEntityListener).
      *
      * @param \Closure(): list<int> $languageIds
      */

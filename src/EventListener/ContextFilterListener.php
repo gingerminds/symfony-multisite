@@ -10,12 +10,21 @@ use Gingerminds\MultisiteBundle\Context\LanguageContext;
 use Gingerminds\MultisiteBundle\Context\SiteContext;
 use Gingerminds\MultisiteBundle\Doctrine\Filter\LanguageFilter;
 use Gingerminds\MultisiteBundle\Doctrine\Filter\SiteFilter;
+use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
+use Gingerminds\MultisiteBundle\Http\AdminPath;
+use Gingerminds\MultisiteBundle\Security\SiteAccess;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Translation\LocaleSwitcher;
 
 /**
  * Enables the site and language Doctrine filters on the main request (Laravel
  * global scopes), with the current site and language. Commands and message
- * handlers are not filtered.
+ * handlers are not filtered. A user allowed no site (SiteAccess) is denied.
+ *
+ * Out of the admin, the current language is also the Symfony locale (translator, Intl,
+ * Twig): the admin language is the one of its interface, not of the edited content.
  */
 final readonly class ContextFilterListener
 {
@@ -23,6 +32,9 @@ final readonly class ContextFilterListener
         private ManagerRegistry $doctrine,
         private SiteContext $siteContext,
         private LanguageContext $languageContext,
+        private SiteAccess $access,
+        private string $adminPrefix,
+        private ?LocaleSwitcher $localeSwitcher = null,
     ) {
     }
 
@@ -33,8 +45,32 @@ final readonly class ContextFilterListener
         }
 
         $siteId = $this->siteContext->id();
-        $languageId = $this->languageContext->current()?->getId();
 
+        if (null === $siteId && $this->access->isRestricted()) {
+            throw new AccessDeniedHttpException('No site is allowed to the current user.');
+        }
+
+        $language = $this->languageContext->current();
+
+        if ($language instanceof LanguageInterface && !AdminPath::matches($event->getRequest(), $this->adminPrefix)) {
+            $this->setLocale($event->getRequest(), $language);
+        }
+
+        $this->enableFilters($siteId, $language?->getId());
+    }
+
+    /**
+     * After the LocaleListener and the LocaleAwareListener: the request and the translator.
+     */
+    private function setLocale(Request $request, LanguageInterface $language): void
+    {
+        $locale = str_replace('-', '_', (string) $language->getIso());
+        $request->setLocale($locale);
+        $this->localeSwitcher?->setLocale($locale);
+    }
+
+    private function enableFilters(?int $siteId, ?int $languageId): void
+    {
         foreach ($this->doctrine->getManagers() as $manager) {
             if (!$manager instanceof EntityManagerInterface) {
                 continue;

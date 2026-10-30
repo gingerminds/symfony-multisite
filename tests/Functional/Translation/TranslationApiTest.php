@@ -52,7 +52,10 @@ final class TranslationApiTest extends ApiTestCase
     public function testOnlyTheAcceptLanguageLocale(): void
     {
         self::assertSame(['en'], array_column($this->translations(['HTTP_ACCEPT_LANGUAGE' => 'en-GB,fr;q=0.5'])['member'], 'locale'));
-        self::assertSame([], $this->translations(['HTTP_ACCEPT_LANGUAGE' => 'de'])['member']);
+        // Quality values, and the next accepted language when the first one has no translations.
+        self::assertSame(['en'], array_column($this->translations(['HTTP_ACCEPT_LANGUAGE' => 'fr;q=0.5,de,en;q=0.8'])['member'], 'locale'));
+        // None accepted: the site default language, else the first one of the spreadsheet.
+        self::assertSame(['fr'], array_column($this->translations(['HTTP_ACCEPT_LANGUAGE' => 'de'])['member'], 'locale'));
     }
 
     public function testSiteQueryParameter(): void

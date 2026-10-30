@@ -8,6 +8,7 @@ use Gingerminds\MultisiteBundle\Controller\Language\LanguageController;
 use Gingerminds\MultisiteBundle\Controller\Site\SiteController;
 use Gingerminds\MultisiteBundle\Controller\Site\SiteSwitchController;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
+use Psr\Container\ContainerInterface;
 
 /*
  * Admin controllers.
@@ -15,18 +16,18 @@ use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    $services->set('gingerminds_multisite.controller.admin.site', SiteController::class)
-        ->args([service('gingerminds_core.controller.context'), param('gingerminds_multisite.translation.enabled')])
-        ->tag('controller.service_arguments');
-    $services->alias(SiteController::class, 'gingerminds_multisite.controller.admin.site')->public();
+    // AbstractController: services read from its locator.
+    foreach (['site' => SiteController::class, 'language' => LanguageController::class, 'site_switch' => SiteSwitchController::class] as $name => $class) {
+        $services->set('gingerminds_multisite.controller.admin.' . $name, $class)
+            ->public()
+            ->tag('controller.service_arguments')
+            ->tag('container.service_subscriber')
+            ->call('setContainer', [service(ContainerInterface::class)]);
+        $services->alias($class, 'gingerminds_multisite.controller.admin.' . $name)->public();
+    }
 
-    $services->set('gingerminds_multisite.controller.admin.language', LanguageController::class)
-        ->args([service('gingerminds_core.controller.context')])
-        ->tag('controller.service_arguments');
-    $services->alias(LanguageController::class, 'gingerminds_multisite.controller.admin.language')->public();
-
-    $services->set('gingerminds_multisite.controller.admin.site_switch', SiteSwitchController::class)
-        ->args([service(SiteRepository::class), service('security.csrf.token_manager'), service('router')])
-        ->tag('controller.service_arguments')
-        ->public();
+    $services->get('gingerminds_multisite.controller.admin.site')
+        ->args([param('gingerminds_multisite.translation.enabled')]);
+    $services->get('gingerminds_multisite.controller.admin.site_switch')
+        ->args([service(SiteRepository::class)]);
 };

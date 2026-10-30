@@ -19,7 +19,9 @@ class LanguageContext implements ResetInterface
     private ?LanguageInterface $current = null;
     private ?LanguageInterface $fallback = null;
     private bool $explicit = false;
-    private ?string $resolvedFor = null;
+    private bool $resolved = false;
+    private ?Request $resolvedRequest = null;
+    private ?SiteInterface $resolvedSite = null;
 
     /**
      * @param bool $apiFallback `translation_fallback`: API translations fall back to the fallback language
@@ -45,11 +47,6 @@ class LanguageContext implements ResetInterface
         $this->resolve();
 
         return $this->fallback;
-    }
-
-    public function has(): bool
-    {
-        return $this->current() instanceof LanguageInterface || $this->fallback() instanceof LanguageInterface;
     }
 
     /**
@@ -89,7 +86,9 @@ class LanguageContext implements ResetInterface
         $this->current = null;
         $this->fallback = null;
         $this->explicit = false;
-        $this->resolvedFor = null;
+        $this->resolved = false;
+        $this->resolvedRequest = null;
+        $this->resolvedSite = null;
     }
 
     /**
@@ -122,13 +121,15 @@ class LanguageContext implements ResetInterface
 
         $site = $this->siteContext->site();
         $request = $this->requestStack->getMainRequest();
-        $key = spl_object_id($site ?? $this) . '/' . ($request instanceof Request ? spl_object_id($request) : '-');
 
-        if ($key === $this->resolvedFor) {
+        // Once per main request and site (a site set explicitly changes it).
+        if ($this->resolved && $request === $this->resolvedRequest && $site === $this->resolvedSite) {
             return;
         }
 
-        $this->resolvedFor = $key;
+        $this->resolved = true;
+        $this->resolvedRequest = $request;
+        $this->resolvedSite = $site;
         [$this->current, $this->fallback] = $site instanceof SiteInterface ? $this->resolver->resolve($site, $request) : [null, null];
     }
 }

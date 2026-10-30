@@ -31,7 +31,7 @@
 
         <div class="tab-content">
             <div class="tab-pane fade{{ active == 'general' ? ' show active' }}" id="<?= $resource->snake ?>-pane-general"
-                 role="tabpanel" aria-labelledby="<?= $resource->snake ?>-tab-general" tabindex="0">
+                 role="tabpanel" aria-labelledby="<?= $resource->snake ?>-tab-general">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
                         <div class="row g-3">
@@ -44,7 +44,7 @@
             </div>
 
             <div class="tab-pane fade{{ active == 'translations' ? ' show active' }}" id="<?= $resource->snake ?>-pane-translations"
-                 role="tabpanel" aria-labelledby="<?= $resource->snake ?>-tab-translations" tabindex="0">
+                 role="tabpanel" aria-labelledby="<?= $resource->snake ?>-tab-translations">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
                         {{ form_widget(form.translations) }}

@@ -9,7 +9,6 @@ use Gingerminds\MultisiteBundle\Context\LanguageContext;
 use Gingerminds\MultisiteBundle\Context\LanguageContextResolver;
 use Gingerminds\MultisiteBundle\Context\SiteContext;
 use Gingerminds\MultisiteBundle\Context\SiteContextResolver;
-use Gingerminds\MultisiteBundle\DependencyInjection\Compiler\CacheContextResolverPass;
 use Gingerminds\MultisiteBundle\EventListener\ContextFilterListener;
 use Gingerminds\MultisiteBundle\Repository\Site\SiteRepository;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -21,7 +20,12 @@ return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
     $services->set('gingerminds_multisite.context.site_resolver', SiteContextResolver::class)
-        ->args([service(SiteRepository::class)]);
+        ->args([
+            service(SiteRepository::class),
+            service('gingerminds_multisite.security.site_access'),
+            param('gingerminds_multisite.unknown_host'),
+            param('gingerminds_core.admin_prefix'),
+        ]);
     $services->alias(SiteContextResolver::class, 'gingerminds_multisite.context.site_resolver');
 
     $services->set('gingerminds_multisite.context.site', SiteContext::class)
@@ -43,8 +47,9 @@ return static function (ContainerConfigurator $container): void {
         ->tag('kernel.reset', ['method' => 'reset']);
     $services->alias(LanguageContext::class, 'gingerminds_multisite.context.language');
 
-    // Becomes `gingerminds_core.cache.context_resolver` (CacheContextResolverPass).
-    $services->set(CacheContextResolverPass::RESOLVER, SiteLanguageCacheContextResolver::class)
+    // Replaces the core no-op one: the cached API responses vary with the site and language.
+    $services->set('gingerminds_multisite.cache.context_resolver', SiteLanguageCacheContextResolver::class)
+        ->decorate('gingerminds_core.cache.context_resolver')
         ->args([service('gingerminds_multisite.context.site'), service('gingerminds_multisite.context.language')]);
 
     $services->set('gingerminds_multisite.context.filter_listener', ContextFilterListener::class)
@@ -52,6 +57,9 @@ return static function (ContainerConfigurator $container): void {
             service('doctrine'),
             service('gingerminds_multisite.context.site'),
             service('gingerminds_multisite.context.language'),
+            service('gingerminds_multisite.security.site_access'),
+            param('gingerminds_core.admin_prefix'),
+            service('translation.locale_switcher')->nullOnInvalid(),
         ])
         // After the firewall (8), before the core API response cache (5) and API Platform (4).
         ->tag('kernel.event_listener', ['event' => KernelEvents::REQUEST, 'method' => 'onKernelRequest', 'priority' => 6]);

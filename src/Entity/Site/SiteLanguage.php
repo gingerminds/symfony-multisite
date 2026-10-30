@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Gingerminds\MultisiteBundle\Entity\Site;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gingerminds\CoreBundle\Model\CacheCascadeInterface;
+use Gingerminds\CoreBundle\Model\CacheCascade;
 use Gingerminds\CoreBundle\Model\TimestampableInterface;
 use Gingerminds\CoreBundle\Model\Trait\TimestampableTrait;
 use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
@@ -16,7 +16,8 @@ use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
 #[ORM\Entity]
 #[ORM\Table(name: 'site_language')]
 #[ORM\UniqueConstraint(name: 'site_language_unique', columns: ['site_id', 'language_id'])]
-class SiteLanguage implements TimestampableInterface, CacheCascadeInterface
+#[CacheCascade(['site'])]
+class SiteLanguage implements TimestampableInterface
 {
     use TimestampableTrait;
 
@@ -66,10 +67,5 @@ class SiteLanguage implements TimestampableInterface, CacheCascadeInterface
     public function setDefault(bool $default): void
     {
         $this->default = $default;
-    }
-
-    public static function getCascadeCacheKeys(): array
-    {
-        return ['site'];
     }
 }

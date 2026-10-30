@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Gingerminds\MultisiteBundle\Tests\Application\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gingerminds\CoreBundle\Model\EagerLoadableInterface;
 use Gingerminds\MultisiteBundle\Model\HasTranslatedTitleAndSlugTrait;
 use Gingerminds\MultisiteBundle\Model\SiteContextedInterface;
 use Gingerminds\MultisiteBundle\Model\SiteContextedTrait;
@@ -17,7 +16,7 @@ use Gingerminds\MultisiteBundle\Model\TranslatableTrait;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'articles')]
-class Article implements SiteContextedInterface, TranslatableInterface, EagerLoadableInterface
+class Article implements SiteContextedInterface, TranslatableInterface
 {
     use HasTranslatedTitleAndSlugTrait;
     use SiteContextedTrait;
@@ -42,10 +41,5 @@ class Article implements SiteContextedInterface, TranslatableInterface, EagerLoa
     public function getCode(): string
     {
         return $this->code;
-    }
-
-    public static function getEagerLoads(): array
-    {
-        return [...self::getTranslationEagerLoads()];
     }
 }

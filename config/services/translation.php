@@ -13,6 +13,7 @@ use Gingerminds\MultisiteBundle\Translation\TranslationFileParser;
 use Gingerminds\MultisiteBundle\Translation\TranslationRefresher;
 use Gingerminds\MultisiteBundle\Translation\TranslationService;
 use Gingerminds\MultisiteBundle\Translation\TranslationSourceInterface;
+use Psr\Container\ContainerInterface;
 
 /*
  * Front translations read from Google Drive: source, cache, API provider, refresh.
@@ -60,11 +61,10 @@ return static function (ContainerConfigurator $container): void {
             service(SiteRepository::class),
             service('gingerminds_multisite.translation.service'),
             service('gingerminds_multisite.translation.refresher'),
-            service('security.authorization_checker'),
-            service('security.csrf.token_manager'),
-            service('router'),
             service('translator'),
         ])
+        ->public()
         ->tag('controller.service_arguments')
-        ->public();
+        ->tag('container.service_subscriber')
+        ->call('setContainer', [service(ContainerInterface::class)]);
 };
