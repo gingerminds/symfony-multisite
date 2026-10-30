@@ -26,7 +26,7 @@ final class SiteMetadataListener
                 'mappedBy' => 'site',
                 'cascade' => ['persist', 'remove'],
                 'orphanRemoval' => true,
-                'orderBy' => ['id' => 'ASC'],
+                'orderBy' => ['id' => \SortDirection::Ascending],
             ]);
         }
 
@@ -37,7 +37,7 @@ final class SiteMetadataListener
                 'mappedBy' => 'site',
                 'cascade' => ['persist', 'remove'],
                 'orphanRemoval' => true,
-                'orderBy' => ['url' => 'ASC'],
+                'orderBy' => ['url' => \SortDirection::Ascending],
             ]);
         }
     }
