@@ -40,10 +40,10 @@ Public. One item per locale of the current site (`X-Site-Id`, host…), or of `?
 }
 ```
 
-With an `Accept-Language` header, only its primary locale (`fr-FR,en;q=0.8` gives `fr`; none when
-the spreadsheet has no such column). Browsers always send it: a front (or Swagger UI) calling
-from the browser receives one locale; call without the header (server side, curl) to get them all.
-Same behaviour as `gingerminds/laravel-multisite`.
+With an `Accept-Language` header, only its preferred locale among the spreadsheet columns
+(quality values: `de,en;q=0.8` gives `en`), else the site default language one, else the first
+column. Browsers always send it: a front (or Swagger UI) calling from the browser receives one
+locale; call without the header (server side, curl) to get them all.
 
 No translation (empty list) when the feature is disabled, the site has no file id or credentials,
 or Google Drive fails.

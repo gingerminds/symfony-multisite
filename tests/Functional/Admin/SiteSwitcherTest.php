@@ -50,7 +50,8 @@ final class SiteSwitcherTest extends ApiTestCase
 
         $this->client->request('POST', '/admin/site-switch', ['_token' => 'invalid', 'site_id' => $second->getId()], server: ['HTTP_REFERER' => 'https://evil.example.com/phishing']);
 
-        self::assertResponseRedirects('/admin/');
+        // Core InvalidCsrfTokenListener: a flash and the site list, never the external referer.
+        self::assertResponseRedirects('/admin/sites', 303);
         self::assertNull($this->client->getRequest()->getSession()->get(SiteSwitchController::SESSION_KEY));
     }
 }

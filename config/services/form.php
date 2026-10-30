@@ -20,7 +20,6 @@ return static function (ContainerConfigurator $container): void {
     $services->set('gingerminds_multisite.form.type.site', SiteType::class)
         ->args([
             service('gingerminds_core.resource_registry'),
-            service('translator'),
             param('gingerminds_multisite.translation.enabled'),
             service('gingerminds_multisite.security.credentials_encryptor'),
         ])
@@ -41,6 +40,6 @@ return static function (ContainerConfigurator $container): void {
         ->tag('form.type');
 
     $services->set('gingerminds_multisite.validator.unique_translation_slug', UniqueTranslationSlugValidator::class)
-        ->args([service('doctrine'), service('gingerminds_multisite.context.site')])
+        ->args([service('doctrine'), service('gingerminds_multisite.context.site'), service('property_accessor')])
         ->tag('validator.constraint_validator');
 };

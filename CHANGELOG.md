@@ -37,6 +37,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     (no `CrudContext`);
   - the Google credentials are encrypted by `SiteType` (`setter` of the field) instead of
     `SiteRepository::beforeSave()`.
+- The current language is the Symfony locale out of the admin (request, translator, Intl, Twig).
+- `Accept-Language` resolved by `Request::getPreferredLanguage()`: quality values honoured;
+  `/api/translations` answers the next accepted locale, else the site default one (was nothing).
+  `AcceptLanguage` removed.
+- Twig functions attribute based (`#[AsTwigFunction]`): no translation service built with Twig.
+- `SiteSwitchController` / `TranslationRefreshController`: `AbstractController`,
+  `#[IsCsrfTokenValid]` (an invalid token is the core flash and redirection), `#[IsGranted]`;
+  the translations refresh only targets the sites of the user.
+- Default language check of `SiteType`: a `Callback` constraint (no `translator` argument).
+- `UniqueTranslationSlugValidator` takes the `property_accessor` service; the xlsx is read by the
+  Xlsx reader (no temporary `.xlsx` rename).
 
 ### Removed
 

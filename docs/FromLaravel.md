@@ -58,6 +58,9 @@ translations. Same database schema. This page maps each concept; see also the co
   `TranslatableTrait`) instead of an SQL `ORDER BY CASE`.
 - **Optional translation emptied** in the form is deleted (Laravel kept it with empty values).
 - **Language ISO codes** are stored lowercase.
+- **`Accept-Language`** quality values are honoured (Laravel took the header order), and
+  `/api/translations` answers the next accepted locale, else the default one, instead of nothing.
+- **Symfony locale** set to the current language out of the admin (Laravel left the app locale).
 - **Site `code`** uniqueness is validated by the form (database constraint only in Laravel).
 - **Site deletion** deletes its site contexted rows by default (`onDelete: CASCADE`, overridable).
 - **Front translations cache**: `cache_ttl` is applied (it was read but unused: the cache never

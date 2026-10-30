@@ -44,8 +44,12 @@ Only among the sites of the current user: see [Site access](SiteAccess.md).
 Resolved on the current site (no site: `null` for both):
 
 - **fallback**: the site language flagged as default, else its first language;
-- **current**: the first `Accept-Language` code (primary subtag, header order: `fr-FR,en;q=0.8`
-  gives `fr`, then `en`) enabled on the site, else the fallback.
+- **current**: the `Accept-Language` preferred language enabled on the site
+  (`Request::getPreferredLanguage()`: quality values, `fr-FR` matches `fr`), else the fallback.
+
+Out of the admin (`gingerminds_core.admin_prefix`), the current language is also the Symfony
+locale: the request one and the translator, Intl and Twig ones (`LocaleSwitcher`). The admin keeps
+the language of its interface, the current language being the one of the edited content.
 
 A translatable entity shows its translation in the current language, else in the fallback one
 (`ids()`). On the API requests (under `gingerminds_core.api.prefix`), `translation_fallback: false`

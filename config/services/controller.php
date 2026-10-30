@@ -16,8 +16,8 @@ use Psr\Container\ContainerInterface;
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    // AbstractCrudController: an AbstractController reading its services from its locator.
-    foreach (['site' => SiteController::class, 'language' => LanguageController::class] as $name => $class) {
+    // AbstractController: services read from its locator.
+    foreach (['site' => SiteController::class, 'language' => LanguageController::class, 'site_switch' => SiteSwitchController::class] as $name => $class) {
         $services->set('gingerminds_multisite.controller.admin.' . $name, $class)
             ->public()
             ->tag('controller.service_arguments')
@@ -28,9 +28,6 @@ return static function (ContainerConfigurator $container): void {
 
     $services->get('gingerminds_multisite.controller.admin.site')
         ->args([param('gingerminds_multisite.translation.enabled')]);
-
-    $services->set('gingerminds_multisite.controller.admin.site_switch', SiteSwitchController::class)
-        ->args([service(SiteRepository::class), service('security.csrf.token_manager'), service('router')])
-        ->tag('controller.service_arguments')
-        ->public();
+    $services->get('gingerminds_multisite.controller.admin.site_switch')
+        ->args([service(SiteRepository::class)]);
 };

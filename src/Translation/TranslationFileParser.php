@@ -21,7 +21,7 @@ final class TranslationFileParser
     public function parse(string $path): array
     {
         /** @var list<list<mixed>> $rows */
-        $rows = IOFactory::load($path)->getActiveSheet()->toArray(null, true, true, false);
+        $rows = IOFactory::createReader('Xlsx')->load($path)->getActiveSheet()->toArray(null, true, true, false);
 
         if ([] === $rows) {
             return [];

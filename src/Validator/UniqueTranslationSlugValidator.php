@@ -11,7 +11,7 @@ use Gingerminds\MultisiteBundle\Entity\Language\LanguageInterface;
 use Gingerminds\MultisiteBundle\Entity\Site\SiteInterface;
 use Gingerminds\MultisiteBundle\Model\SiteContextedInterface;
 use Gingerminds\MultisiteBundle\Model\TranslationInterface;
-use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -22,6 +22,7 @@ final class UniqueTranslationSlugValidator extends ConstraintValidator
     public function __construct(
         private readonly ManagerRegistry $doctrine,
         private readonly SiteContext $siteContext,
+        private readonly PropertyAccessorInterface $propertyAccessor,
     ) {
     }
 
@@ -39,7 +40,7 @@ final class UniqueTranslationSlugValidator extends ConstraintValidator
             throw new UnexpectedValueException($value, TranslationInterface::class);
         }
 
-        $slug = PropertyAccess::createPropertyAccessor()->getValue($value, $constraint->field);
+        $slug = $this->propertyAccessor->getValue($value, $constraint->field);
         $language = $value->getLanguage();
 
         if (!\is_string($slug) || '' === $slug || !$language instanceof LanguageInterface) {

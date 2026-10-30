@@ -16,11 +16,14 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
  * `gingerminds_crud` loader of @GingermindsCoreBundle/config/routes.php.
  */
 return static function (RoutingConfigurator $routes): void {
+    // `_resource`: an invalid CSRF token is a flash and a redirection back (core InvalidCsrfTokenListener).
     $routes->add('gingerminds_multisite_site_switch', '/%gingerminds_core.admin_prefix%/site-switch')
         ->controller('gingerminds_multisite.controller.admin.site_switch')
+        ->defaults(['_resource' => 'site'])
         ->methods(['POST']);
 
     $routes->add('gingerminds_multisite_translations_refresh', '/%gingerminds_core.admin_prefix%/translations/refresh')
         ->controller('gingerminds_multisite.controller.admin.translation_refresh')
+        ->defaults(['_resource' => 'site'])
         ->methods(['POST']);
 };

@@ -115,6 +115,11 @@ class ProductTranslation implements TranslationInterface
   language unless `getTranslation($language, fallback: false)`.
 - `addTranslation()` / `removeTranslation()`; in a form, use [TranslationsType](Forms.md).
 
+A deliberate in-house design, close to KnpLabs DoctrineBehaviors Translatable: the same tables
+and payloads as `gingerminds/laravel-multisite`, the languages being entities of the site (not
+locale strings), and the current/fallback language taken from the multisite context. No
+migration to a third-party library is planned.
+
 ## API documentation
 
 Every API resource of a site contexted entity, or of a language contexted or translatable one,

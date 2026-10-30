@@ -22,6 +22,6 @@ return static function (ContainerConfigurator $container): void {
             service('gingerminds_multisite.context.language'),
             service('gingerminds_multisite.translation.service'),
         ])
-        ->tag('twig.extension')
+        ->autoconfigure()
         ->tag('kernel.reset', ['method' => 'reset']);
 };

@@ -15,12 +15,10 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @extends AbstractType<SiteInterface>
@@ -31,7 +29,6 @@ class SiteType extends AbstractType
 
     public function __construct(
         protected readonly ResourceRegistry $resources,
-        protected readonly TranslatorInterface $translator,
         protected readonly bool $translationEnabled,
         protected readonly CredentialsEncryptor $encryptor,
     ) {
@@ -76,6 +73,8 @@ class SiteType extends AbstractType
                 'placeholder' => 'site.placeholder.default_language',
                 'size' => 'xl',
                 'choice_translation_domain' => false,
+                // The site keeps no default language outside its languages: checked on the submitted ones.
+                'constraints' => [new Assert\Callback(self::validateDefaultLanguage(...))],
             ]);
 
         $builder->get('front_urls')->addModelTransformer(new LinesToArrayTransformer());
@@ -100,27 +99,6 @@ class SiteType extends AbstractType
                     'constraints' => [new Assert\Json()],
                 ]);
         }
-
-        // The default language must be one of the selected ones.
-        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
-            $form = $event->getForm();
-            $default = $form->get('default_language')->getData();
-            $languages = $form->get('languages')->getData();
-
-            if (!$default instanceof LanguageInterface || !is_iterable($languages)) {
-                return;
-            }
-
-            foreach ($languages as $language) {
-                if ($language === $default) {
-                    return;
-                }
-            }
-
-            $form->get('default_language')->addError(new FormError(
-                $this->translator->trans('site.error.default_language_not_selected', [], 'GingermindsMultisite'),
-            ));
-        });
     }
 
     /**
@@ -133,6 +111,26 @@ class SiteType extends AbstractType
         if (\is_array($decoded)) {
             $site->setEncryptedGoogleCredentials($this->encryptor->encrypt($decoded));
         }
+    }
+
+    public static function validateDefaultLanguage(mixed $default, ExecutionContextInterface $context): void
+    {
+        $form = $context->getRoot();
+        $languages = $form instanceof FormInterface && $form->has('languages') ? $form->get('languages')->getData() : null;
+
+        if (!$default instanceof LanguageInterface || !is_iterable($languages)) {
+            return;
+        }
+
+        foreach ($languages as $language) {
+            if ($language === $default) {
+                return;
+            }
+        }
+
+        $context->buildViolation('site.error.default_language_not_selected')
+            ->setTranslationDomain('GingermindsMultisite')
+            ->addViolation();
     }
 
     public function configureOptions(OptionsResolver $resolver): void

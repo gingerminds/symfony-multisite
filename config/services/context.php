@@ -53,6 +53,8 @@ return static function (ContainerConfigurator $container): void {
             service('gingerminds_multisite.context.site'),
             service('gingerminds_multisite.context.language'),
             service('gingerminds_multisite.security.site_access'),
+            param('gingerminds_core.admin_prefix'),
+            service('translation.locale_switcher')->nullOnInvalid(),
         ])
         // After the firewall (8), before the core API response cache (5) and API Platform (4).
         ->tag('kernel.event_listener', ['event' => KernelEvents::REQUEST, 'method' => 'onKernelRequest', 'priority' => 6]);

@@ -66,6 +66,18 @@ final class ContextTest extends ApiTestCase
         self::assertSame(['everywhere-fr'], $content['medias']);
     }
 
+    public function testTheCurrentLanguageIsTheSymfonyLocaleOutOfTheAdmin(): void
+    {
+        // `fr` is accepted by the application (enabled_locales), but beta only has `en`.
+        self::assertSame(['en', 'en'], $this->content('beta.example.com', 'fr')['locale'], 'Request and translator.');
+
+        $this->client->loginUser($this->fixtures->user('locale@example.com', superAdmin: true), 'admin');
+        $this->client->request('GET', '/admin/', server: ['HTTP_HOST' => 'beta.example.com', 'HTTP_ACCEPT_LANGUAGE' => 'fr']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('fr', $this->client->getRequest()->getLocale(), 'The admin keeps the language of its interface.');
+    }
+
     public function testSiteHeaderWinsOverTheHost(): void
     {
         foreach ([(string) $this->beta->getId(), 'beta'] as $header) {

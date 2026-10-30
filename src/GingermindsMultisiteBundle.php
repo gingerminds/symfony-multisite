@@ -118,7 +118,7 @@ final class GingermindsMultisiteBundle extends AbstractResourceBundle
 
         if ($builder->hasExtension('monolog')) {
             // Google API errors in their own file (Laravel `google` daily channel), unless configured otherwise.
-            $channel = $this->logChannel($builder);
+            $channel = (string) self::extensionConfigValue($builder, $this->extensionAlias, 'translation.log_channel', 'google');
             $builder->prependExtensionConfig('monolog', [
                 'channels' => [$channel],
                 'handlers' => [
@@ -151,23 +151,5 @@ final class GingermindsMultisiteBundle extends AbstractResourceBundle
     protected function entityDirectories(): array
     {
         return ['Site', 'Language'];
-    }
-
-    /**
-     * `translation.log_channel` of the project configuration (the last one wins), `google` by default.
-     */
-    private function logChannel(ContainerBuilder $builder): string
-    {
-        $channel = 'google';
-
-        foreach ($builder->getExtensionConfig($this->extensionAlias) as $config) {
-            $value = $config['translation']['log_channel'] ?? null;
-
-            if (\is_string($value) && '' !== $value) {
-                $channel = $value;
-            }
-        }
-
-        return $channel;
     }
 }
