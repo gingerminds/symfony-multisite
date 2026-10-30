@@ -25,8 +25,6 @@ use Symfony\Component\Form\FormEvents;
  * holder of `assign sites` on another account: an assigner limited to some sites offers
  * theirs only, keeps the other ones and never grants every site. A new user created by
  * anyone else gets the sites of their creator.
- *
- * @extends AbstractTypeExtension<SiteRestrictedUserInterface>
  */
 final class UserSitesTypeExtension extends AbstractTypeExtension
 {
