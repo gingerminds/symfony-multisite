@@ -30,12 +30,9 @@ final class TranslationServiceTest extends TestCase
         self::assertSame([], FakeTranslationSource::$downloads);
     }
 
-    public function testTranslationsOfALocale(): void
+    public function testTranslationsByLocale(): void
     {
-        $service = $this->service(enabled: true);
-
-        self::assertSame(['hello' => 'Bonjour'], $service->getTranslationsForSiteAndLocale($this->site(), 'FR'));
-        self::assertSame([], $service->getTranslationsForSiteAndLocale($this->site(), 'de'));
+        self::assertSame(['fr' => ['hello' => 'Bonjour']], $this->service(enabled: true)->getTranslationsForSite($this->site()));
     }
 
     private function service(bool $enabled): TranslationService

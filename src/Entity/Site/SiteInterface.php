@@ -47,11 +47,6 @@ interface SiteInterface extends ResourceInterface
     public function setDefaultLanguage(?LanguageInterface $language): void;
 
     /**
-     * @return Collection<int, SiteFrontUrl>
-     */
-    public function getFrontUrls(): Collection;
-
-    /**
      * @return list<string>
      */
     public function getFrontUrlValues(): array;

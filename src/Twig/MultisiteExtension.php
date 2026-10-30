@@ -43,7 +43,6 @@ final class MultisiteExtension implements ResetInterface
         return \count($this->sites) > 1 ? $this->sites : [];
     }
 
-    #[AsTwigFunction('gm_multisite_admin_site')]
     #[AsTwigFunction('gm_current_site')]
     public function currentSite(): ?SiteInterface
     {

@@ -22,7 +22,19 @@ public function __invoke(): Response
 }
 ```
 
-In Twig: `gm_current_site()` and `gm_current_language()`.
+In Twig, the public functions for the front templates:
+
+| Function | Returns |
+|---|---|
+| `gm_current_site()` | the current site (`?SiteInterface`): `gm_current_site().code`, `.url` |
+| `gm_current_language()` | the current language (`?LanguageInterface`): `gm_current_language().iso` |
+
+```twig
+<html lang="{{ gm_current_language().iso|default('fr') }}">
+```
+
+The other `gm_multisite_*` functions serve the bundle templates (site switcher, translations
+refresh) and may change.
 
 Both are resolved once per main request, and reset between requests (`kernel.reset`).
 

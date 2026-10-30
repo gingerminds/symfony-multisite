@@ -109,3 +109,8 @@ decorate or replace it as usual. The most useful ones:
 | `gingerminds_multisite.context.language_resolver` | how the current language is resolved (`LanguageContextResolver`) |
 | `gingerminds_multisite.translation.source` | where the translations xlsx is downloaded from (`TranslationSourceInterface`) |
 | `gingerminds_multisite.translation_cache` | cache pool of the front translations (`cache.app` adapter) |
+
+To force the site of a request (e.g. from a route parameter), call `SiteContext::setSite()` in a
+`kernel.request` listener running before `ContextFilterListener` (priority above 6): the filters,
+the language and the cache context then use it. It is not checked against the
+[site access](SiteAccess.md) of the user. Commands and message handlers set it the same way.

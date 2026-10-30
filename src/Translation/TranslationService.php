@@ -32,11 +32,6 @@ class TranslationService
     ) {
     }
 
-    public function isEnabled(): bool
-    {
-        return $this->enabled;
-    }
-
     public function isEnabledForSite(SiteInterface $site): bool
     {
         return $this->enabled && null !== $site->getGoogleDriveFileId() && $site->hasGoogleCredentials();
@@ -76,14 +71,6 @@ class TranslationService
 
             return $translations ?? [];
         };
-    }
-
-    /**
-     * @return array<string, string> key => value
-     */
-    public function getTranslationsForSiteAndLocale(SiteInterface $site, string $locale): array
-    {
-        return $this->getTranslationsForSite($site)[mb_strtolower($locale)] ?? [];
     }
 
     /**

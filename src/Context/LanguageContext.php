@@ -49,11 +49,6 @@ class LanguageContext implements ResetInterface
         return $this->fallback;
     }
 
-    public function has(): bool
-    {
-        return $this->current() instanceof LanguageInterface || $this->fallback() instanceof LanguageInterface;
-    }
-
     /**
      * Ids of the languages to try for a translation, best first: the current one, then the
      * fallback one, except on an API request without `translation_fallback`.

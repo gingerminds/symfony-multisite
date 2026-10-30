@@ -20,6 +20,9 @@ trait SiteFrontUrlsTrait
     #[EagerLoad]
     protected Collection $frontUrls;
 
+    /**
+     * @return Collection<int, SiteFrontUrl>
+     */
     public function getFrontUrls(): Collection
     {
         return $this->frontUrls;

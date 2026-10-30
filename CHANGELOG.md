@@ -57,6 +57,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Removed
 
+- Dead code: `TranslationService::isEnabled()` and `getTranslationsForSiteAndLocale()`,
+  `LanguageContext::has()`, `SiteInterface::getFrontUrls()` (the trait keeps it), the
+  `gingerminds_multisite.repository.*` aliases (the repositories keep their class id) and the
+  `gm_multisite_admin_site()` Twig function (`gm_current_site()`).
 - `SiteQuery` (`getFilters()->disable(SiteFilter::NAME)` and a plain condition instead).
 
 ### Fixed
