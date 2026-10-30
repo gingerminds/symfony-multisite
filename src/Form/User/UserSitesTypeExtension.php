@@ -79,7 +79,12 @@ final class UserSitesTypeExtension extends AbstractTypeExtension
             'query_builder' => static function (EntityRepository $repository) use ($allowed): QueryBuilder {
                 $qb = $repository->createQueryBuilder('s')->orderBy('s.code');
 
-                return null === $allowed ? $qb : $qb->andWhere('s.id IN (:allowed)')->setParameter('allowed', [] === $allowed ? [0] : $allowed);
+                if (null !== $allowed) {
+                    // No allowed site: an empty IN () is invalid SQL, [0] matches none.
+                    $qb->andWhere('s.id IN (:allowed)')->setParameter('allowed', [] === $allowed ? [0] : $allowed);
+                }
+
+                return $qb;
             },
             'multiple' => true,
             'expanded' => true,
