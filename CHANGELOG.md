@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `TranslationInterface::getTranslatableEntityClass()` may return an interface (an overridable
+  owner, resolved by `resolve_target_entities`): `TranslatableMetadataListener` joins it on the
+  column without the `Interface` suffix (`ProductInterface` → `product_id`) and runs before the
+  Doctrine resolver. The unique (owner, language) constraint is not added when one is declared on
+  these columns, whatever its name.
 - Site access per user, opt-in: `SiteRestrictedUserInterface` / `UserSitesTrait` on the project
   user (`all_sites`, `user_sites`). The current site, the site switcher, the site list and edit
   page are limited to the user's sites (an `X-Site-Id` naming another site is a 403); the **Sites**

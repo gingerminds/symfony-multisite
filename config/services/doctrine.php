@@ -19,7 +19,7 @@ return static function (ContainerConfigurator $container): void {
         ->tag('doctrine.event_listener', ['event' => 'loadClassMetadata']);
 
     $services->set('gingerminds_multisite.doctrine.translatable_metadata_listener', TranslatableMetadataListener::class)
-        ->tag('doctrine.event_listener', ['event' => 'loadClassMetadata']);
+        ->tag('doctrine.event_listener', ['event' => 'loadClassMetadata', 'priority' => TranslatableMetadataListener::PRIORITY]);
 
     $services->set('gingerminds_multisite.doctrine.language_contexted_metadata_listener', LanguageContextedMetadataListener::class)
         ->tag('doctrine.event_listener', ['event' => 'loadClassMetadata']);
