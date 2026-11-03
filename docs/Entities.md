@@ -105,9 +105,11 @@ class ProductTranslation implements TranslationInterface
 
 - **Mapping, automatic** (`TranslatableMetadataListener`): `Product::$translations`
   (one-to-many, cascade, orphan removal) and `ProductTranslation::$translatable` joined on
-  `product_id` (cascade delete), `language_id`, unique (`product_id`, `language_id`). The
-  translation class is `<Entity>Translation` in the same namespace: override
-  `getTranslationEntityClass()` / `getTranslatableEntityClass()` otherwise.
+  `product_id` (cascade delete), `language_id`, unique (`product_id`, `language_id`) unless a
+  unique constraint is declared on these columns. The translation class is `<Entity>Translation`
+  in the same namespace: override `getTranslationEntityClass()` / `getTranslatableEntityClass()`
+  otherwise. For an overridable owner, `getTranslatableEntityClass()` returns its interface
+  (resolved by `resolve_target_entities`): `ProductInterface` is joined on `product_id`.
 - **Current translation**: `getCurrentTranslation()` returns the translation in the current
   language, else in the fallback language (`null` when neither exists); without language context
   (command), the first one.

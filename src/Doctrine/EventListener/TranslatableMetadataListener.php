@@ -14,10 +14,15 @@ use Gingerminds\MultisiteBundle\Model\TranslationInterface;
  * TranslationInterface entity (Laravel TranslatableModelTrait conventions):
  * `translations` one-to-many on the owner, `translatable` many-to-one on the
  * translation, joined on `<owner>_id` (e.g. `product_id`, cascade delete), and a
- * unique (`<owner>_id`, `language_id`) constraint. Already mapped fields are kept.
+ * unique (`<owner>_id`, `language_id`) constraint unless one is declared on these columns.
+ * Already mapped fields are kept. The owner may be an interface (an overridable entity, resolved by
+ * `resolve_target_entities`): its column drops the `Interface` suffix (`ProductInterface` →
+ * `product_id`); the listener runs before the Doctrine resolver (PRIORITY).
  */
 final class TranslatableMetadataListener
 {
+    public const int PRIORITY = 10;
+
     public function loadClassMetadata(LoadClassMetadataEventArgs $args): void
     {
         $metadata = $args->getClassMetadata();
@@ -49,7 +54,9 @@ final class TranslatableMetadataListener
      */
     private function mapTranslation(ClassMetadata $metadata, string $owner, LoadClassMetadataEventArgs $args): void
     {
-        $column = $args->getEntityManager()->getConfiguration()->getNamingStrategy()->joinKeyColumnName($owner, null);
+        /** @var class-string $ownerName only used to derive the join column name, need not exist */
+        $ownerName = interface_exists($owner) ? (string) preg_replace('/Interface$/', '', $owner) : $owner;
+        $column = $args->getEntityManager()->getConfiguration()->getNamingStrategy()->joinKeyColumnName($ownerName, null);
 
         $metadata->mapManyToOne([
             'fieldName' => 'translatable',
@@ -58,7 +65,16 @@ final class TranslatableMetadataListener
             'joinColumns' => [['name' => $column, 'referencedColumnName' => 'id', 'nullable' => false, 'onDelete' => 'CASCADE']],
         ]);
 
-        $name = $metadata->getTableName() . '_language_unique';
-        $metadata->table['uniqueConstraints'][$name] ??= ['columns' => [$column, 'language_id']];
+        $columns = [$column, 'language_id'];
+
+        foreach ($metadata->table['uniqueConstraints'] ?? [] as $constraint) {
+            $declared = $constraint['columns'] ?? [];
+
+            if (\count($declared) === \count($columns) && [] === array_diff($columns, $declared)) {
+                return;
+            }
+        }
+
+        $metadata->table['uniqueConstraints'][$metadata->getTableName() . '_language_unique'] ??= ['columns' => $columns];
     }
 }
